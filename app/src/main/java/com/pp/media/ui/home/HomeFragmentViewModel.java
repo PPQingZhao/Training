@@ -1,4 +1,4 @@
-package com.pp.media.ui;
+package com.pp.media.ui.home;
 
 import android.app.Application;
 import android.content.Intent;
@@ -12,10 +12,10 @@ import com.pp.mvvm.base.LifecycleViewModel;
 import com.pp.mvvm.event.ViewEvent;
 import com.pp.mvvm.event.ViewEventHandler;
 
-public class MainFragmentViewModel extends LifecycleViewModel {
+public class HomeFragmentViewModel extends LifecycleViewModel {
     public final ObservableField<String> contentFiled = new ObservableField<>("Main Fragmennt");
 
-    public MainFragmentViewModel(@NonNull Application application) {
+    public HomeFragmentViewModel(@NonNull Application application) {
         super(application);
     }
 

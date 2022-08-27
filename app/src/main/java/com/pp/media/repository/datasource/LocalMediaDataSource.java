@@ -3,6 +3,8 @@ package com.pp.media.repository.datasource;
 import android.Manifest;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -13,6 +15,8 @@ import androidx.databinding.ObservableList;
 
 import com.pp.media.repository.IMediaDataSource;
 import com.pp.media.repository.bean.Media;
+
+import java.io.File;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -51,9 +55,11 @@ public class LocalMediaDataSource implements IMediaDataSource {
                     @Override
                     public ObservableSource<ObservableList<Media>> apply(Cursor cursor) throws Exception {
                         ObservableList<Media> list = new ObservableArrayList<>();
+
                         do {
                             //从数据库中读取数据
                             String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA));
+
                             int add_date = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATE_ADDED));
 
                             // 将读取的信息存储到 media

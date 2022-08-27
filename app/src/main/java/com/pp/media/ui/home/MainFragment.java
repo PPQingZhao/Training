@@ -1,4 +1,4 @@
-package com.pp.media.ui;
+package com.pp.media.ui.home;
 
 import android.os.Bundle;
 
@@ -10,10 +10,10 @@ import com.pp.mvvm.base.LifecycleFragment;
 import com.pp.media.databinding.MainFragmentBinding;
 import com.pp.media.network.NetworkChange;
 
-public class MainFragment extends LifecycleFragment<MainFragmentBinding, MainFragmentViewModel> {
+public class MainFragment extends LifecycleFragment<MainFragmentBinding, HomeFragmentViewModel> {
     @Override
-    public Class<MainFragmentViewModel> getModelClass() {
-        return MainFragmentViewModel.class;
+    public Class<HomeFragmentViewModel> getModelClass() {
+        return HomeFragmentViewModel.class;
     }
 
     @Override

@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.pp.media.ui.MainFragmentViewModel" />
+            type="com.pp.media.ui.home.HomeFragmentViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
