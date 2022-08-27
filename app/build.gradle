@@ -1,0 +1,58 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
+
+    defaultConfig {
+        applicationId "com.pp.media"
+
+        minSdkVersion rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
+        versionCode rootProject.ext.android.versionCode
+        versionName rootProject.ext.android.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+
+    dataBinding {
+        enabled true
+    }
+}
+
+
+dependencies {
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation project(path: ':mvvm')
+
+    implementation rootProject.ext.dependencies.appcompat
+    implementation rootProject.ext.dependencies.supportV4
+    implementation rootProject.ext.dependencies.constraintLayout
+
+    implementation rootProject.ext.dependencies.lifecycleExtentsion
+
+    implementation rootProject.ext.dependencies.recyclerView
+    implementation rootProject.ext.dependencies.bestRVAdapter
+    implementation rootProject.ext.dependencies.rxJava
+    implementation rootProject.ext.dependencies.rxAndroid
+    // glide
+    implementation rootProject.ext.dependencies.glide
+    annotationProcessor rootProject.ext.dependencies.glideCompiler
+
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+
+
+}
