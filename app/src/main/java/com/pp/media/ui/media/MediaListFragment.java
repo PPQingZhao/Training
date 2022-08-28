@@ -4,17 +4,18 @@ package com.pp.media.ui.media;
 import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.ObservableList;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,8 +24,10 @@ import com.pp.media.adapter.MultiltemAdapter;
 import com.pp.media.adapter.OnItemListChangedCallback;
 import com.pp.media.databinding.MediaListDataBinding;
 import com.pp.media.repository.MediaRepository;
+import com.pp.media.rxjava.DisposableLifecycleObserver;
 import com.pp.media.ui.media.callback.FullOnListChangeCallBack;
 import com.pp.media.ui.media.model.MediaItemViewModel;
+import com.pp.media.util.FragmentUtil;
 import com.pp.mvvm.base.LifecycleFragment;
 
 import java.util.concurrent.TimeUnit;
@@ -34,10 +37,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 
 
-class MediaListFragment extends LifecycleFragment<MediaListDataBinding, MediaViewModel> {
+public class MediaListFragment extends LifecycleFragment<MediaListDataBinding, MediaViewModel> {
 
     private MultiltemAdapter<MediaItemViewModel> mAdapter;
     private static final int CODE_PERMISSION = 1;
+    private DisposableLifecycleObserver mDisposableLifecycleObserver;
 
     @Override
     public Class<MediaViewModel> getModelClass() {
@@ -49,10 +53,34 @@ class MediaListFragment extends LifecycleFragment<MediaListDataBinding, MediaVie
         return R.layout.fragment_medialist;
     }
 
+    public static void injectInto(@NonNull FragmentActivity activity, @IdRes int container) {
+        FragmentUtil.addToActivity(
+                activity,
+                getInstance(activity),
+                getFragmentTag(),
+                container);
+    }
+
+    private static MediaListFragment getInstance(@NonNull FragmentActivity activity) {
+        Fragment fragment = activity.getSupportFragmentManager()
+                .findFragmentByTag(getFragmentTag());
+        if (!(fragment instanceof MediaListFragment)) {
+            fragment = new MediaListFragment();
+        }
+        return (MediaListFragment) fragment;
+    }
+
+    private static String getFragmentTag() {
+        return String.valueOf(R.string.title_medialist);
+    }
+
     @SuppressLint("CheckResult")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mDisposableLifecycleObserver = DisposableLifecycleObserver.newInstance();
+        getLifecycle().addObserver(mDisposableLifecycleObserver);
 
         // init  recyclervew
         RecyclerView recyclerview = mBindingHelper.getDataBinding().mediaRecyclerview;
@@ -80,7 +108,7 @@ class MediaListFragment extends LifecycleFragment<MediaListDataBinding, MediaVie
                 final RecyclerView mediaRecyclerview = mBindingHelper.getDataBinding().mediaRecyclerview;
 
                 mediaProgressbar.setVisibility(View.GONE);
-                Observable.just(1)
+                mDisposableLifecycleObserver.addDisposale(Observable.just(1)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Consumer<Integer>() {
                             @Override
@@ -90,24 +118,28 @@ class MediaListFragment extends LifecycleFragment<MediaListDataBinding, MediaVie
                                 alphaRV.setDuration(1000);
                                 alphaRV.start();
                             }
-                        });
+                        }));
             }
         });
 
 
         mBindingHelper.getDataBinding().mediaProgressbar.setVisibility(View.VISIBLE);
         mBindingHelper.getDataBinding().mediaRecyclerview.setVisibility(View.GONE);
-        Observable.just(1)
-                .delay(1000, TimeUnit.MILLISECONDS)
+
+
+        mDisposableLifecycleObserver.addDisposale(Observable.just(1)
+                .delay(500, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Integer>() {
                     @Override
                     public void accept(Integer integer) throws Exception {
                         loadMedia();
                     }
-                });
+                }));
+
 
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

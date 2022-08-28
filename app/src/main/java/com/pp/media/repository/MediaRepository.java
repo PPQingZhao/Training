@@ -3,14 +3,16 @@ package com.pp.media.repository;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 import androidx.databinding.ObservableArrayList;
-import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableList;
+import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import com.pp.media.repository.bean.Media;
@@ -27,7 +29,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
-public class MediaRepository implements LifecycleObserver {
+public class MediaRepository implements DefaultLifecycleObserver {
 
     private List<IMediaDataSource> mDataSourceList;
 
@@ -79,16 +81,22 @@ public class MediaRepository implements LifecycleObserver {
                     public ObservableSource<ObservableList<Media>> apply(IMediaDataSource dataSource) throws Exception {
                         return dataSource.load(ctx);
                     }
-                }).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<ObservableList<Media>>() {
+                }).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<ObservableList<Media>>() {
                     @Override
                     public void accept(ObservableList<Media> media) throws Exception {
                         mList.addAll(media);
                     }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        Log.e("TAG",throwable.getMessage());
+                    }
                 });
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    public void onDestroy() {
+    @Override
+    public void onDestroy(@NonNull LifecycleOwner owner) {
         stopLoad();
         for (ObservableList.OnListChangedCallback<ObservableList<Media>> callback : callbacks) {
 //            Log.e("TAG","remove callback");

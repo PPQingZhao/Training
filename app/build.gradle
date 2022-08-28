@@ -26,6 +26,13 @@ android {
     dataBinding {
         enabled true
     }
+
+    // java8支持
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
 }
 
 
@@ -39,7 +46,9 @@ dependencies {
     implementation rootProject.ext.dependencies.supportV4
     implementation rootProject.ext.dependencies.constraintLayout
 
+    // lifecycle
     implementation rootProject.ext.dependencies.lifecycleExtentsion
+    implementation rootProject.ext.dependencies.lifecycleCommon
 
     implementation rootProject.ext.dependencies.recyclerView
     implementation rootProject.ext.dependencies.bestRVAdapter
@@ -50,9 +59,9 @@ dependencies {
     annotationProcessor rootProject.ext.dependencies.glideCompiler
 
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    testImplementation rootProject.ext.dependencies.junit
+    androidTestImplementation rootProject.ext.dependencies.testRunner
+    androidTestImplementation rootProject.ext.dependencies.testEspesso
 
 
 }

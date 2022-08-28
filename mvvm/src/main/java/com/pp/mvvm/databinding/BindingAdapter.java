@@ -1,7 +1,5 @@
 package com.pp.mvvm.databinding;
 
-import android.widget.TextView;
-
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 

@@ -39,7 +39,7 @@
                 android:layout_height="?actionBarSize"
                 android:layout_marginLeft="8dp"
                 android:bindText="@{viewModel.title}"
-                android:text="@string/media" />
+                android:text="Media" />
 
         </LinearLayout>
 

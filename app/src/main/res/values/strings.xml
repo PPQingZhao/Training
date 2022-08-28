@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Media</string>
 
-    <string name="media">Media</string>
+    <string name="title_home">Home</string>
+    <string name="title_medialist">Media List</string>
+
 </resources>

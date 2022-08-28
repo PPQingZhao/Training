@@ -13,18 +13,11 @@ import java.util.List;
 
 public class OnMediaListChangeCallBack extends ObservableList.OnListChangedCallback<ObservableList<Media>> {
     private static final String TAG = "OnListChangeCallBack";
-    final SimpleDateFormat mFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    final Date mDate = new Date();
 
     final ObservableList<MediaItemViewModel> mMediaList;
 
     public OnMediaListChangeCallBack(@NonNull ObservableList<MediaItemViewModel> list) {
         this.mMediaList = list;
-    }
-
-    String formatTime(long millsTime) {
-        mDate.setTime(millsTime);
-        return mFormat.format(mDate);
     }
 
     @Override
@@ -33,9 +26,7 @@ public class OnMediaListChangeCallBack extends ObservableList.OnListChangedCallb
         MediaItemViewModel itemViewModel;
         for (Media m : list) {
             itemViewModel = new MediaItemViewModel();
-
-            itemViewModel.date.set(formatTime(m.getAddMillsTime()));
-            itemViewModel.src.set(m.getPath());
+            itemViewModel.setMedia(m);
             mMediaList.add(itemViewModel);
         }
 
@@ -55,9 +46,7 @@ public class OnMediaListChangeCallBack extends ObservableList.OnListChangedCallb
             media = sender.get(i);
 
             itemViewModel = new MediaItemViewModel();
-            itemViewModel.date.set(formatTime(media.getAddMillsTime()));
-            itemViewModel.src.set(media.getPath());
-
+            itemViewModel.setMedia(media);
             tempList.add(i, itemViewModel);
         }
 

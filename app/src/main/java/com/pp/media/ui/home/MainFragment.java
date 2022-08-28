@@ -2,15 +2,19 @@ package com.pp.media.ui.home;
 
 import android.os.Bundle;
 
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Observer;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import com.pp.media.R;
-import com.pp.mvvm.base.LifecycleFragment;
 import com.pp.media.databinding.MainFragmentBinding;
-import com.pp.media.network.NetworkChange;
+import com.pp.media.util.FragmentUtil;
+import com.pp.mvvm.base.LifecycleFragment;
 
 public class MainFragment extends LifecycleFragment<MainFragmentBinding, HomeFragmentViewModel> {
+
     @Override
     public Class<HomeFragmentViewModel> getModelClass() {
         return HomeFragmentViewModel.class;
@@ -21,24 +25,30 @@ public class MainFragment extends LifecycleFragment<MainFragmentBinding, HomeFra
         return R.layout.fragment_main;
     }
 
+    public static void injectInto(@NonNull FragmentActivity activity, @IdRes int container) {
+        FragmentUtil.addToActivity(
+                activity,
+                getInstance(activity),
+                getFragmentTag(),
+                container);
+    }
+
+    public static MainFragment getInstance(@NonNull FragmentActivity activity) {
+        Fragment fragment = activity.getSupportFragmentManager()
+                .findFragmentByTag(getFragmentTag());
+        if (!(fragment instanceof MainFragment)) {
+            fragment = new MainFragment();
+        }
+        return (MainFragment) fragment;
+    }
+
+    private static String getFragmentTag() {
+        return String.valueOf(R.string.title_home);
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-        NetworkChange networkChange = new NetworkChange(new NetworkChange.Factory());
-        // 添加生命周期感应
-        getLifecycle().addObserver(networkChange);
-
-        // 开始网络监听
-        networkChange.startObserve(getContext())
-                .observe(this, new Observer<String>() {
-                    @Override
-                    public void onChanged(String state) {
-                        mBindingHelper.getViewModel().contentFiled.set(state);
-                    }
-                });
 
 
     }

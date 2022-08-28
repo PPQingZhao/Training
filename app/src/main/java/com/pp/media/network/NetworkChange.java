@@ -5,8 +5,10 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringDef;
+import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.OnLifecycleEvent;
@@ -14,7 +16,7 @@ import androidx.lifecycle.OnLifecycleEvent;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-public class NetworkChange implements LifecycleObserver {
+public class NetworkChange implements DefaultLifecycleObserver {
 
     /**
      * 无网络
@@ -74,8 +76,10 @@ public class NetworkChange implements LifecycleObserver {
         return mState;
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    public void onDestroy() {
+
+    @Override
+    public void onDestroy(@NonNull LifecycleOwner owner) {
+
         endObserve(mCtx);
         mCtx = null;
     }

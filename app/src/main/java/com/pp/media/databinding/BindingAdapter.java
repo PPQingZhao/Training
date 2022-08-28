@@ -30,6 +30,7 @@ public class BindingAdapter extends BaseObservable {
 
         Glide.with(imageView)
                 .load(src)
+//                .thumbnail(0.1f)
                 .apply(options)
                 .into(imageView);
     }

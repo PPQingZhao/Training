@@ -14,16 +14,33 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <FrameLayout
+            android:id="@+id/home_fl"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:background="@color/colorPrimaryDark"
+            android:fitsSystemWindows="true"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                style="@style/StyleTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/title_home" />
+        </FrameLayout>
+
         <androidx.appcompat.widget.AppCompatButton
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/media"
             android:onClick="@{viewModel.onMediaClick}"
+            android:text="Media"
             android:textAllCaps="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/home_fl"
             app:layout_constraintWidth_percent="0.8" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
