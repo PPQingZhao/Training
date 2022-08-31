@@ -30,6 +30,7 @@ public class MediaActivity extends BaseActivity<MediaDataBinding, MediaViewModel
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         loadMedia();
 
         ImageBucketFragment.injectInto(MediaActivity.this, R.id.media_fl_content);

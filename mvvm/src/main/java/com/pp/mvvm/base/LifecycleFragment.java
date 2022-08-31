@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 
 import com.pp.mvvm.BR;
-import com.pp.mvvm.databinding.BindingHelperBulders;
 import com.pp.mvvm.databinding.DataBindingHelper;
 import com.pp.mvvm.databinding.IResource;
 import com.pp.mvvm.event.ViewEvent;
@@ -27,11 +26,30 @@ public abstract class LifecycleFragment<DB extends ViewDataBinding, VM extends L
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBindingHelper = new BindingHelperBulders.FragmentBindingHelperBuilder(this)
-                .setInflate(getLayoutInflater())
-                .setLayoutId(getLayoutRes())
-                .setModelHost(getModelHost())
-                .build(getModelClass());
+
+        mBindingHelper = DataBindingHelper.get(this, new DataBindingHelper.InflateAdapter<DB, VM>() {
+            @NonNull
+            @Override
+            public LayoutInflater getInflater() {
+                return getLayoutInflater();
+            }
+
+            @Override
+            public int getLayoutRes() {
+                return LifecycleFragment.this.getLayoutRes();
+            }
+
+            @NonNull
+            @Override
+            public Class<VM> getViewModelClazz() {
+                return getModelClass();
+            }
+
+            @Override
+            public int getModelHost() {
+                return LifecycleFragment.this.getModelHost();
+            }
+        });
 
         init(mBindingHelper);
 

@@ -11,7 +11,6 @@ public class MvvmApplication extends Application implements LifecycleObserver {
     public void onCreate() {
         super.onCreate();
 
-        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
 

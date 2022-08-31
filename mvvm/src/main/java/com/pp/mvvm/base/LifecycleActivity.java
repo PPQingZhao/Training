@@ -2,6 +2,7 @@ package com.pp.mvvm.base;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.ViewDataBinding;
@@ -9,11 +10,10 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.pp.mvvm.BR;
-import com.pp.mvvm.databinding.BindingHelperBulders;
 import com.pp.mvvm.databinding.DataBindingHelper;
 import com.pp.mvvm.databinding.IResource;
-import com.pp.mvvm.event.ViewEventHandler;
 import com.pp.mvvm.event.ViewEvent;
+import com.pp.mvvm.event.ViewEventHandler;
 
 
 public abstract class LifecycleActivity<DB extends ViewDataBinding, VM extends LifecycleViewModel>
@@ -25,10 +25,19 @@ public abstract class LifecycleActivity<DB extends ViewDataBinding, VM extends L
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBindingHelper = new BindingHelperBulders.ActivityBindingHelperBuilder(this)
-                .setLayoutId(getLayoutRes())
-                .setFactory(getFactory())
-                .build(getModelClass());
+
+        mBindingHelper = DataBindingHelper.get(this, new DataBindingHelper.Adapter<DB, VM>() {
+            @Override
+            public int getLayoutRes() {
+                return LifecycleActivity.this.getLayoutRes();
+            }
+
+            @NonNull
+            @Override
+            public Class<VM> getViewModelClazz() {
+                return getModelClass();
+            }
+        });
 
         init(mBindingHelper);
     }

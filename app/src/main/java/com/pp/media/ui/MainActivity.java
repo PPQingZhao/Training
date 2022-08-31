@@ -35,5 +35,6 @@ public class MainActivity extends BaseActivity<MainDataBing, MainViewModel> {
                 .add(R.id.main_fl_content, mainFragment, tagMain)
                 .show(mainFragment)
                 .commit();
+
     }
 }

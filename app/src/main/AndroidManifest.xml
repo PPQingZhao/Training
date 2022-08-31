@@ -31,7 +31,7 @@
             android:name=".ui.media.MediaActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="portrait"
-            android:theme="@style/MainTheme" />
+            android:theme="@style/MediaTheme" />
     </application>
 
 </manifest>

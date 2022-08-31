@@ -2,12 +2,10 @@ package com.pp.mvvm.databinding;
 
 import android.app.Application;
 import android.view.LayoutInflater;
-import android.view.ViewGroup;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
@@ -19,7 +17,6 @@ import com.pp.mvvm.base.LifecycleViewModel;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.List;
 
 public class DataBindingHelper<VDB extends ViewDataBinding, VM extends LifecycleViewModel> {
 
@@ -41,7 +38,7 @@ public class DataBindingHelper<VDB extends ViewDataBinding, VM extends Lifecycle
     protected VDB mDataBinding;
     protected VM mViewModel;
 
-    DataBindingHelper() {
+    private DataBindingHelper() {
     }
 
     public VDB getDataBinding() {
@@ -57,98 +54,93 @@ public class DataBindingHelper<VDB extends ViewDataBinding, VM extends Lifecycle
         return this;
     }
 
-    /**
-     * 创建ViewDataBinding
-     *
-     * @return
-     */
-    protected DataBindingHelper<VDB, VM> inflate(@NonNull LayoutInflater inflater,
-                                                 int layoutId,
-                                                 @Nullable ViewGroup parent,
-                                                 boolean attachToParent) {
+    public static <VDB extends ViewDataBinding, VM extends LifecycleViewModel> DataBindingHelper<VDB, VM> get(@NonNull FragmentActivity activity, @NonNull Adapter<VDB, VM> adapter) {
 
-        mDataBinding = DataBindingUtil.inflate(inflater, layoutId, parent, attachToParent);
-        return this;
+        Application application = activity.getApplication();
+        int layoutRes = adapter.getLayoutRes();
+        ViewModelProvider.Factory factory = adapter.getFactory(application);
+        Class<VM> viewModelClazz = adapter.getViewModelClazz();
+
+        VDB binding = DataBindingUtil.setContentView(activity, layoutRes);
+        VM vieweModel = ViewModelProviders.of(activity, factory).get(viewModelClazz);
+
+        DataBindingHelper<VDB, VM> helper = new DataBindingHelper<>();
+
+        helper.mDataBinding = binding;
+        helper.mViewModel = vieweModel;
+
+        helper.mDataBinding.setLifecycleOwner(activity);
+
+        return helper;
     }
 
-    /**
-     * 创建ViewModel对象
-     *
-     * @param activity
-     * @param factory
-     * @param modelClass
-     * @return
-     */
-    protected DataBindingHelper<VDB, VM> createViewModel(@NonNull FragmentActivity activity,
-                                                         ViewModelProvider.Factory factory,
-                                                         @NonNull Class<VM> modelClass) {
-        mViewModel = ViewModelProviders.of(activity, factory).get(modelClass);
-        return this;
+    public static <VDB extends ViewDataBinding, VM extends LifecycleViewModel> DataBindingHelper<VDB, VM> get(@NonNull Fragment fragment, @NonNull InflateAdapter<VDB, VM> adapter) {
+
+        int modelHost = adapter.getModelHost();
+        if (VIEWMODEL_HOST_ACTIVITY == modelHost) {
+            return get(fragment.getActivity(), adapter);
+        }
+
+        Application application = fragment.getActivity().getApplication();
+        int layoutRes = adapter.getLayoutRes();
+        ViewModelProvider.Factory factory = adapter.getFactory(application);
+        Class<VM> viewModelClazz = adapter.getViewModelClazz();
+        LayoutInflater inflater = adapter.getInflater();
+
+        VDB binding = DataBindingUtil.inflate(inflater, layoutRes, null, false);
+
+        VM vieweModel = ViewModelProviders.of(fragment, factory).get(viewModelClazz);
+
+        DataBindingHelper<VDB, VM> helper = new DataBindingHelper<>();
+
+        helper.mDataBinding = binding;
+        helper.mViewModel = vieweModel;
+
+        helper.mDataBinding.setLifecycleOwner(fragment);
+
+        return helper;
     }
 
-    /**
-     * 创建viewModel对象
-     *
-     * @param fragment
-     * @param modelClass
-     * @param modelHost  设置viewModel对象的生命周期
-     * @return
-     */
-    protected DataBindingHelper<VDB, VM> createViewModel(@NonNull Fragment fragment,
-                                                         @NonNull ViewModelProvider.Factory factory,
-                                                         Class<VM> modelClass,
-                                                         @ViewModelHost int modelHost) {
-        if (modelHost == VIEWMODEL_HOST_ACTIVITY) {
-            return createViewModel(fragment.getActivity(), factory, modelClass);
-        }
-        mViewModel = ViewModelProviders.of(fragment, factory).get(modelClass);
-        return this;
-    }
-
-    public static abstract class Builder<builder extends Builder<builder>> {
-        private Application mApplicaton;
-
-        private ViewModelProvider.Factory mFactory;
-        protected @LayoutRes
-        int mLayoutId;
-
-        public Builder(Application application) {
-            this.mApplicaton = application;
-        }
-
-        protected builder self() {
-            return (builder) this;
-        }
-
-
-        public builder setFactory(ViewModelProvider.Factory factory) {
-            this.mFactory = factory;
-            return this.self();
-        }
-
-        protected ViewModelProvider.Factory getFactory() {
-            if (null == mFactory) {
-                mFactory = ViewModelProvider.AndroidViewModelFactory.getInstance(mApplicaton);
-            }
-            return mFactory;
-        }
-
+    public static abstract class InflateAdapter<VDB extends ViewDataBinding, VM extends LifecycleViewModel> extends Adapter<VDB, VM> {
         /**
-         * 设置布局资源
+         * @return 1. DataBindingHelper.VIEWMODEL_HOST_ACTIVITY VM缓存在activity  2. DataBindingHelper.VIEWMODEL_HOST_FRAGMEBT VM缓存在fragment
+         */
+        public @ViewModelHost
+        int getModelHost() {
+            return DataBindingHelper.VIEWMODEL_HOST_ACTIVITY;
+        }
+
+        public abstract @NonNull
+        LayoutInflater getInflater();
+    }
+
+    public static abstract class Adapter<VDB extends ViewDataBinding, VM extends LifecycleViewModel> {
+        /**
+         * 获取布局资源
          *
-         * @param layoutId
          * @return
          */
-        public builder setLayoutId(@LayoutRes int layoutId) {
-            this.mLayoutId = layoutId;
-            return this.self();
+        public abstract @LayoutRes
+        int getLayoutRes();
+
+        /**
+         * 获取VM calss
+         *
+         * @return
+         */
+        public abstract @NonNull
+        Class<VM> getViewModelClazz();
+
+
+        /**
+         * 获取VM 创建工厂
+         *
+         * @param application
+         * @return
+         */
+        public @NonNull
+        ViewModelProvider.Factory getFactory(@NonNull Application application) {
+            return ViewModelProvider.AndroidViewModelFactory.getInstance(application);
         }
-
-
-        public abstract <VDB extends ViewDataBinding, VM extends LifecycleViewModel>
-
-        DataBindingHelper<VDB, VM> build(@NonNull Class<VM> modelClass);
-
     }
-
 }
