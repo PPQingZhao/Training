@@ -3,6 +3,7 @@ package com.pp.media.ui.media;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,6 +13,12 @@ import androidx.core.content.ContextCompat;
 import com.pp.media.R;
 import com.pp.media.base.BaseActivity;
 import com.pp.media.databinding.MediaDataBinding;
+
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class MediaActivity extends BaseActivity<MediaDataBinding, MediaViewModel> {
     private static final int CODE_PERMISSION = 1;

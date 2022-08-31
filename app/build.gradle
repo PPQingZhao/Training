@@ -62,8 +62,8 @@ dependencies {
     implementation rootProject.ext.dependencies.glide
     annotationProcessor rootProject.ext.dependencies.glideCompiler
 
-
-
+    // leakcanary
+    debugImplementation  rootProject.ext.dependencies.debugLeakcanary
 
 
     testImplementation rootProject.ext.dependencies.junit
