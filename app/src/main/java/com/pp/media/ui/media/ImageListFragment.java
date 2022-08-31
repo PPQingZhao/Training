@@ -25,7 +25,7 @@ import com.pp.media.adapter.OnItemListChangedCallback;
 import com.pp.media.databinding.MediaListDataBinding;
 import com.pp.media.repository.MediaRepository;
 import com.pp.media.rxjava.DisposableLifecycleObserver;
-import com.pp.media.ui.media.callback.FullOnListChangeCallBack;
+import com.pp.media.callback.FullOnListChangeCallBack;
 import com.pp.media.ui.media.model.MediaItemViewModel;
 import com.pp.media.util.FragmentUtil;
 import com.pp.mvvm.base.LifecycleFragment;
@@ -37,41 +37,44 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 
 
-public class MediaListFragment extends LifecycleFragment<MediaListDataBinding, MediaViewModel> {
+public class ImageListFragment extends LifecycleFragment<MediaListDataBinding, ImageListViewModel> {
 
     private MultiltemAdapter<MediaItemViewModel> mAdapter;
     private static final int CODE_PERMISSION = 1;
     private DisposableLifecycleObserver mDisposableLifecycleObserver;
 
     @Override
-    public Class<MediaViewModel> getModelClass() {
-        return MediaViewModel.class;
+    public Class<ImageListViewModel> getModelClass() {
+        return ImageListViewModel.class;
     }
 
     @Override
     public int getLayoutRes() {
-        return R.layout.fragment_medialist;
+        return R.layout.fragment_imagelist;
     }
 
     public static void injectInto(@NonNull FragmentActivity activity, @IdRes int container) {
-        FragmentUtil.addToActivity(
+        FragmentUtil.addFragment(
                 activity,
-                getInstance(activity),
-                getFragmentTag(),
-                container);
-    }
+                container,
+                new FragmentUtil.Adapter<ImageListFragment>() {
+                    @NonNull
+                    @Override
+                    public ImageListFragment onCreateFragment(Fragment fragmentByTag) {
+                        if (null != fragmentByTag
+                                && fragmentByTag.getClass().isAssignableFrom(ImageListFragment.class)
+                                && ImageListFragment.class.isAssignableFrom(fragmentByTag.getClass()))  {
+                            return (ImageListFragment) fragmentByTag;
+                        }else{
+                            return new ImageListFragment();
+                        }
+                    }
 
-    private static MediaListFragment getInstance(@NonNull FragmentActivity activity) {
-        Fragment fragment = activity.getSupportFragmentManager()
-                .findFragmentByTag(getFragmentTag());
-        if (!(fragment instanceof MediaListFragment)) {
-            fragment = new MediaListFragment();
-        }
-        return (MediaListFragment) fragment;
-    }
-
-    private static String getFragmentTag() {
-        return String.valueOf(R.string.title_medialist);
+                    @Override
+                    public String getFragmentTag() {
+                        return String.valueOf(R.string.title_imagelist);
+                    }
+                });
     }
 
     @SuppressLint("CheckResult")

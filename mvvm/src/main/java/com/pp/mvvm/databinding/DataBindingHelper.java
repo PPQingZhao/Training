@@ -19,6 +19,7 @@ import com.pp.mvvm.base.LifecycleViewModel;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 
 public class DataBindingHelper<VDB extends ViewDataBinding, VM extends LifecycleViewModel> {
 
@@ -120,8 +121,8 @@ public class DataBindingHelper<VDB extends ViewDataBinding, VM extends Lifecycle
         }
 
 
-        public builder setFactory(ViewModelProvider.Factory mFactory) {
-            this.mFactory = mFactory;
+        public builder setFactory(ViewModelProvider.Factory factory) {
+            this.mFactory = factory;
             return this.self();
         }
 

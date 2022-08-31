@@ -20,7 +20,22 @@ import static org.junit.Assert.*;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() {
-        assertEquals(4, 2 + 2);
+
+        class F {}
+        class S extends F {}
+        F f = new F();
+        S s = new S();
+
+
+        System.out.println(f.getClass().isAssignableFrom(F.class));
+        System.out.println(F.class.isAssignableFrom(f.getClass()));
+
+        System.out.println(S.class.isAssignableFrom(s.getClass()));
+        System.out.println(s.getClass().isAssignableFrom(S.class));
+
+        System.out.println(F.class.isAssignableFrom(s.getClass()));
+        System.out.println(s.getClass().isAssignableFrom(F.class));
+
 
     }
 }

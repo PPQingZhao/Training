@@ -30,7 +30,7 @@ ext {
                targetSdkverson  : 29,
                versionCode      : 1,
                versioName       : '1.0',
-               minSdkVersion    : 16,
+               minSdkVersion    : 19,
     ]
 
 
@@ -48,6 +48,7 @@ ext {
     def junitVersion = '4.12'
     def testRunnerVersion = '1.1.1'
     def testEspressoVersion = '3.1.1'
+    def cardviewVersion = '1.0.0'
     dependencies = [
             appcompat          : "androidx.appcompat:appcompat:$appcompatVersion",
             supportV4          : "androidx.legacy:legacy-support-v4:$supportV4Version",
@@ -63,6 +64,7 @@ ext {
             junit              : "junit:junit:$junitVersion",
             testRunner         : "androidx.test:runner:$testRunnerVersion",
             testEspesso        : "androidx.test.espresso:espresso-core:$testEspressoVersion",
+            cardview           : "androidx.cardview:cardview:$cardviewVersion",
 
     ]
 

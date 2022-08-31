@@ -9,6 +9,7 @@ import androidx.databinding.ObservableList;
 import androidx.lifecycle.LiveData;
 
 
+import com.pp.media.media.ImageBucket;
 import com.pp.media.repository.bean.Media;
 
 
@@ -23,7 +24,9 @@ public interface IMediaDataSource {
      * @return
      */
     @RequiresPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-    Observable<ObservableList<Media>> load(@NonNull Context ctx);
+    Observable<ObservableList<Media>> load1(@NonNull Context ctx);
+
+    Observable<ObservableList<ImageBucket>> load(@NonNull final Context ctx);
 
     /**
      * 停止加载

@@ -10,15 +10,14 @@ import androidx.annotation.RequiresPermission;
 import androidx.databinding.ObservableArrayList;
 import androidx.databinding.ObservableList;
 import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.OnLifecycleEvent;
 
-import com.pp.media.repository.bean.Media;
+import com.pp.media.callback.LifecycleCallbackHolder;
+import com.pp.media.media.ImageBucket;
 import com.pp.media.repository.datasource.LocalMediaDataSource;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -31,15 +30,33 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MediaRepository implements DefaultLifecycleObserver {
 
+    private static final String TAG = "MediaRepository";
     private List<IMediaDataSource> mDataSourceList;
+    private Context mContext;
 
     MediaRepository() {
+    }
+
+    @Override
+    public void onCreate(@NonNull LifecycleOwner owner) {
+        owner.getLifecycle().addObserver(mCallbackHelper);
+    }
+
+    @SuppressLint("MissingPermission")
+    public void init(@NonNull Context context) {
+        if (null != mContext) {
+            throw new ExceptionInInitializerError("MediaRepository has been initialized");
+        }
+        mContext = context;
+        loadImages();
+
     }
 
     public void addDataSource(@NonNull IMediaDataSource dataSource) {
         if (null != mDataSourceList) {
             if (!mDataSourceList.contains(dataSource)) {
                 mDataSourceList.add(dataSource);
+                load(dataSource);
             }
         } else {
             mDataSourceList = new ArrayList<>();
@@ -47,69 +64,97 @@ public class MediaRepository implements DefaultLifecycleObserver {
         }
     }
 
-    private final ObservableList<Media> mList = new ObservableArrayList<>();
+    private final ObservableList<ImageBucket> mList = new ObservableArrayList<>();
 
-    final List<ObservableList.OnListChangedCallback<ObservableList<Media>>> callbacks = new ArrayList<ObservableList.OnListChangedCallback<ObservableList<Media>>>();
-
-    public void addOnMediaListChangeCallBack(ObservableList.OnListChangedCallback<ObservableList<Media>> callback) {
-        if (null != callback && !callbacks.contains(callback)) {
-            callbacks.add(callback);
+    private final LifecycleCallbackHolder<ObservableList.OnListChangedCallback<ObservableList<ImageBucket>>> mCallbackHelper = new LifecycleCallbackHolder<>(new LifecycleCallbackHolder.OnHoldCallbackListener<ObservableList.OnListChangedCallback<ObservableList<ImageBucket>>>() {
+        @Override
+        public void onAddCallback(ObservableList.OnListChangedCallback<ObservableList<ImageBucket>> callback) {
             mList.addOnListChangedCallback(callback);
+        }
+
+        @Override
+        public void onRemoveCallack(ObservableList.OnListChangedCallback<ObservableList<ImageBucket>> callack) {
+            mList.removeOnListChangedCallback(callack);
+        }
+    });
+
+    public void addOnImageBucketChangedCallback(LifecycleOwner owner, ObservableList.OnListChangedCallback<ObservableList<ImageBucket>> callback) {
+        if (null != callback) {
+            mCallbackHelper.holdCallback(owner, callback);
         }
     }
 
-    public void removeOnMediaListChangeCallBack(ObservableList.OnListChangedCallback<ObservableList<Media>> callback) {
-        callbacks.remove(callback);
-        mList.removeOnListChangedCallback(callback);
+    public void removeOnMediaListChangeCallBack(ObservableList.OnListChangedCallback<ObservableList<ImageBucket>> callback) {
+        mCallbackHelper.removeCallback(callback);
+    }
+
+    /**
+     * 请确保已经init
+     *
+     * @return
+     */
+    public List<ImageBucket> getImages() {
+        if (null == mContext) {
+            throw new ExceptionInInitializerError("MediaRepository not initialized");
+        }
+        return Collections.unmodifiableList(mList);
     }
 
     @RequiresPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-    public void load(@NonNull final Context ctx) {
+    void loadImages() {
         Disposable subscribe = stopLoad()
-                .subscribeOn(Schedulers.io())
                 .flatMap(new Function<Object, ObservableSource<IMediaDataSource>>() {
                     @Override
                     public ObservableSource<IMediaDataSource> apply(Object o) throws Exception {
 //                        Log.e("TAG", " apply  111111");
-                        List<IMediaDataSource> dataSources = mDataSourceList == null || mDataSourceList.size() == 0 ? new ArrayList<IMediaDataSource>() : mDataSourceList;
-                        return Observable.fromIterable(dataSources);
+                        return Observable.fromIterable(new ArrayList<>(mDataSourceList));
                     }
                 })
-                .flatMap(new Function<IMediaDataSource, ObservableSource<ObservableList<Media>>>() {
+                .subscribe(new Consumer<IMediaDataSource>() {
+                    @Override
+                    public void accept(IMediaDataSource dataSource) throws Exception {
+                        load(dataSource);
+                    }
+                });
+    }
+
+    private void load(IMediaDataSource dataSource) {
+
+        if (null == mContext) {
+            return;
+        }
+
+        Disposable disposable = Observable.just(dataSource)
+                .flatMap(new Function<IMediaDataSource, ObservableSource<ObservableList<ImageBucket>>>() {
                     @SuppressLint("MissingPermission")
                     @Override
-                    public ObservableSource<ObservableList<Media>> apply(IMediaDataSource dataSource) throws Exception {
-                        return dataSource.load(ctx);
+                    public ObservableSource<ObservableList<ImageBucket>> apply(IMediaDataSource dataSource) throws Exception {
+//                        Log.e(TAG, Thread.currentThread().toString());
+                        return dataSource.load(mContext);
                     }
-                }).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<ObservableList<Media>>() {
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<ObservableList<ImageBucket>>() {
                     @Override
-                    public void accept(ObservableList<Media> media) throws Exception {
-                        mList.addAll(media);
+                    public void accept(ObservableList<ImageBucket> buckets) throws Exception {
+                        mList.addAll(buckets);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-                        Log.e("TAG",throwable.getMessage());
+                        throwable.printStackTrace();
                     }
                 });
     }
 
     @Override
     public void onDestroy(@NonNull LifecycleOwner owner) {
-        stopLoad();
-        for (ObservableList.OnListChangedCallback<ObservableList<Media>> callback : callbacks) {
-//            Log.e("TAG","remove callback");
-            mList.removeOnListChangedCallback(callback);
-        }
-        callbacks.clear();
     }
 
     public Observable<Object> stopLoad() {
 
-        List<IMediaDataSource> dataSources = mDataSourceList == null || mDataSourceList.size() == 0 ? new ArrayList<IMediaDataSource>() : mDataSourceList;
-
-        return Observable.fromIterable(dataSources)
+        return Observable.fromIterable(mDataSourceList == null ? new ArrayList<IMediaDataSource>() : mDataSourceList)
                 .map(new Function<IMediaDataSource, Object>() {
                     @Override
                     public Object apply(IMediaDataSource dataSource) throws Exception {

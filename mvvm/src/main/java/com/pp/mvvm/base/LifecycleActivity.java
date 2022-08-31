@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.ViewDataBinding;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.pp.mvvm.BR;
 import com.pp.mvvm.databinding.BindingHelperBulders;
@@ -26,9 +27,14 @@ public abstract class LifecycleActivity<DB extends ViewDataBinding, VM extends L
         super.onCreate(savedInstanceState);
         mBindingHelper = new BindingHelperBulders.ActivityBindingHelperBuilder(this)
                 .setLayoutId(getLayoutRes())
+                .setFactory(getFactory())
                 .build(getModelClass());
 
         init(mBindingHelper);
+    }
+
+    protected ViewModelProvider.Factory getFactory() {
+        return ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication());
     }
 
     protected void init(DataBindingHelper<DB, VM> helper) {

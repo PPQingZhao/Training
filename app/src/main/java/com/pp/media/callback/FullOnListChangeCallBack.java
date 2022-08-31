@@ -1,4 +1,4 @@
-package com.pp.media.ui.media.callback;
+package com.pp.media.callback;
 
 import androidx.databinding.ObservableList;
 

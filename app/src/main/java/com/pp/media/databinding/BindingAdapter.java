@@ -24,7 +24,7 @@ public class BindingAdapter extends BaseObservable {
     public static void setSrc(ImageView imageView, String src) {
         RequestOptions options = new RequestOptions()
 //                .placeholder(R.drawable.ic_placeholder)//设置占位图
-                .error(R.drawable.ic_placeholder_error)
+                .error(R.drawable.ic_placeholder)
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE);
 

@@ -39,7 +39,7 @@ public abstract class LifecycleFragment<DB extends ViewDataBinding, VM extends L
 
     protected @DataBindingHelper.ViewModelHost
     int getModelHost() {
-        return DataBindingHelper.VIEWMODEL_HOST_ACTIVITY;
+        return DataBindingHelper.VIEWMODEL_HOST_FRAGMENT;
     }
 
     @Nullable

@@ -1,7 +1,5 @@
 package com.pp.mvvm.event;
 
-import androidx.annotation.NonNull;
-
 public class ViewEvent<T> {
     private DataOwner<T> mDataOwner;
     private String mType;
