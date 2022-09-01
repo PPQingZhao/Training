@@ -50,6 +50,7 @@ ext {
     def testEspressoVersion = '3.1.1'
     def cardviewVersion = '1.0.0'
     def debugLeakcanaryVersion = '2.0-alpha-3'
+    def photoViewVersion = '2.1.4'
     dependencies = [
             appcompat          : "androidx.appcompat:appcompat:$appcompatVersion",
             supportV4          : "androidx.legacy:legacy-support-v4:$supportV4Version",
@@ -67,6 +68,7 @@ ext {
             testEspesso        : "androidx.test.espresso:espresso-core:$testEspressoVersion",
             cardview           : "androidx.cardview:cardview:$cardviewVersion",
             debugLeakcanary    : "com.squareup.leakcanary:leakcanary-android:$debugLeakcanaryVersion",
+            photoView          : "com.github.chrisbanes:PhotoView:$photoViewVersion",
 
     ]
 

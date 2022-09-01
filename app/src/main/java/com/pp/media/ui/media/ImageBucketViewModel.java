@@ -1,6 +1,9 @@
 package com.pp.media.ui.media;
 
 import android.app.Application;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.ObservableArrayList;
@@ -9,6 +12,7 @@ import androidx.databinding.ObservableList;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 
+import com.pp.media.R;
 import com.pp.media.adapter.MultiltemAdapter;
 import com.pp.media.callback.OnBeanListChangedCallBack;
 import com.pp.media.callback.OnBeanListChangedCallBack.Adapter;
@@ -24,7 +28,7 @@ import java.util.List;
 
 public class ImageBucketViewModel extends LifecycleViewModel {
     private static final String TAG = "ImageBucketViewModel";
-    public final ObservableField<String> titleState = new ObservableField<>("Image Bucket");
+    public final ObservableField<CharSequence> titleState = new ObservableField<>("Image Bucket");
     private MutableLiveData<MediaEvent> mItemCallbackSender;
 
     public ImageBucketViewModel(@NonNull Application application) {
@@ -45,7 +49,13 @@ public class ImageBucketViewModel extends LifecycleViewModel {
     }
 
     public void addOnImageBucketChangedCallback(@NonNull MediaRepository repository, LifecycleOwner owner) {
-        repository.addOnImageBucketChangedCallback(owner, new OnBeanListChangedCallBack<ImageBucketItemViewModel, ImageBucket>(mItemList, mBucketAdapter));
+        repository.addOnImageBucketChangedCallback(owner, new OnBeanListChangedCallBack<ImageBucketItemViewModel, ImageBucket>(mItemList, mBucketAdapter) {
+            @Override
+            public void onItemRangeInserted(ObservableList<ImageBucket> sender, int positionStart, int itemCount) {
+                super.onItemRangeInserted(sender, positionStart, itemCount);
+                setTitle(sender);
+            }
+        });
     }
 
     final Adapter<ImageBucketItemViewModel, ImageBucket> mBucketAdapter = new Adapter<ImageBucketItemViewModel, ImageBucket>() {
@@ -65,10 +75,17 @@ public class ImageBucketViewModel extends LifecycleViewModel {
         if (mItemList.size() > 0) {
             return;
         }
+
         mItemList.clear();
         ObservableList<ImageBucket> imageBuckets = new ObservableArrayList<>();
 
-        OnBeanListChangedCallBack<ImageBucketItemViewModel, ImageBucket> callBack = new OnBeanListChangedCallBack<>(mItemList, mBucketAdapter);
+        OnBeanListChangedCallBack<ImageBucketItemViewModel, ImageBucket> callBack = new OnBeanListChangedCallBack<ImageBucketItemViewModel, ImageBucket>(mItemList, mBucketAdapter) {
+            @Override
+            public void onItemRangeInserted(ObservableList<ImageBucket> sender, int positionStart, int itemCount) {
+                super.onItemRangeInserted(sender, positionStart, itemCount);
+                setTitle(sender);
+            }
+        };
         imageBuckets.addOnListChangedCallback(callBack);
 
         imageBuckets.addAll(images);
@@ -76,10 +93,31 @@ public class ImageBucketViewModel extends LifecycleViewModel {
         imageBuckets.removeOnListChangedCallback(callBack);
 
         adapter.setNewData(mItemList);
+
+    }
+
+    private void setTitle(List<ImageBucket> imageBuckets) {
+        int count = 0;
+        for (ImageBucket bucket : imageBuckets) {
+            count += bucket.getImageMap().size();
+        }
+
+        Log.e(TAG, count + "");
+        String title = getApplication().getResources().getString(R.string.title_imagebucket);
+        StringBuilder titleBuilder = new StringBuilder(title)
+                .append("(")
+                .append(count)
+                .append(")");
+
+        SpannableString spanTitle = new SpannableString(titleBuilder.toString());
+
+        ForegroundColorSpan colorSpan = new ForegroundColorSpan(getApplication().getResources().getColor(R.color.colorImageListText));
+        spanTitle.setSpan(colorSpan, title.length(), titleBuilder.length(), SpannableString.SPAN_INCLUSIVE_EXCLUSIVE);
+
+        titleState.set(spanTitle);
     }
 
     public void setItemCallbackSender(MutableLiveData<MediaEvent> sender) {
         this.mItemCallbackSender = sender;
-
     }
 }

@@ -62,6 +62,9 @@ dependencies {
     implementation rootProject.ext.dependencies.glide
     annotationProcessor rootProject.ext.dependencies.glideCompiler
 
+    // photoView
+    implementation rootProject.ext.dependencies.photoView
+
     // leakcanary
     debugImplementation  rootProject.ext.dependencies.debugLeakcanary
 

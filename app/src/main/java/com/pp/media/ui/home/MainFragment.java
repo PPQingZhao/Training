@@ -2,18 +2,14 @@ package com.pp.media.ui.home;
 
 import android.os.Bundle;
 
-import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 
 import com.pp.media.MediaApplication;
 import com.pp.media.R;
 import com.pp.media.base.BaseFragment;
 import com.pp.media.databinding.MainFragmentBinding;
-import com.pp.media.ui.media.ImageBucketFragment;
-import com.pp.media.ui.media.ImageListFragment;
 import com.pp.media.util.FragmentUtil;
 
 public class MainFragment extends BaseFragment<MainFragmentBinding, HomeFragmentViewModel> {

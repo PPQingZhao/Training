@@ -24,7 +24,6 @@ public class MainActivity extends BaseActivity<MainDataBing, MainViewModel> {
         return R.layout.activity_main;
     }
 
-    final String tagMain = String.valueOf(R.string.title_home);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

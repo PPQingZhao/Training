@@ -14,4 +14,7 @@
     <color name="colorCardViewBackground">#80C9BDBD</color>
     <color name="colorBlack">#000000</color>
 
+    <color name="colorTextWhiteLow">#DAD2D2</color>
+    <color name="colorImageListText">#9BF0E9</color>
+
 </resources>

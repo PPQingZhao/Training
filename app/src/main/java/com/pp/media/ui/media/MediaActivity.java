@@ -6,6 +6,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowInsets;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,7 +49,7 @@ public class MediaActivity extends BaseActivity<MediaDataBinding, MediaViewModel
 
         loadMedia(shareViewModel);
 
-        // 解决多个fragment ，状态栏被第一个fargment消费,导致沉浸式状态栏失效
+        // 解决多个fragment ，状态栏被第一个fargment消费,导致沉浸式状态栏失效bug
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
             mBindingHelper.getDataBinding().getRoot().setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
                 @Override
@@ -57,8 +59,7 @@ public class MediaActivity extends BaseActivity<MediaDataBinding, MediaViewModel
             });
         }
 
-        addFragment();
-
+        showFragment(R.string.title_imagebucket);
     }
 
     private MediaShareViewModel initShareViewModel() {
@@ -76,6 +77,12 @@ public class MediaActivity extends BaseActivity<MediaDataBinding, MediaViewModel
                     case MediaEvent.ACTION_ON_IMAGELIST_BACKPRESSED:
                         showFragment(R.string.title_imagebucket);
                         return;
+                    case MediaEvent.ACTION_ON_IMAGEDETAIL_BACKPRESSED:
+                        showFragment(R.string.title_imagelist);
+                        return;
+                    case MediaEvent.ACTION_SEND_IMAGE_FOR_IMAGDETAIL:
+                        showFragment(R.string.title_imagedetail);
+                        return;
                     default:
                         break;
                 }
@@ -92,35 +99,24 @@ public class MediaActivity extends BaseActivity<MediaDataBinding, MediaViewModel
         }
 
         Fragment showFragment;
-        if (R.string.title_imagelist == tagFragment) {
-            showFragment = FragmentUtil.addFragment(this, R.id.media_fl_content, ImageListFragment.getAdapter());
-        } else {
-            showFragment = FragmentUtil.addFragment(this, R.id.media_fl_content, ImageBucketFragment.getAdapter());
+        switch (tagFragment) {
+            case R.string.title_imagedetail:
+                showFragment = FragmentUtil.addFragment(this, R.id.media_fl_content, ImageDetailFragment.getAdapter());
+                break;
+            case R.string.title_imagelist:
+                showFragment = FragmentUtil.addFragment(this, R.id.media_fl_content, ImageListFragment.getAdapter());
+                break;
+            default:
+                showFragment = FragmentUtil.addFragment(this, R.id.media_fl_content, ImageBucketFragment.getAdapter());
+                break;
         }
+
         // 重新消费状态栏-->解决状态栏被第一个fragment的 view消费,导致其他fragment沉浸式失效
         mBindingHelper.getDataBinding().mediaFlContent.requestFitSystemWindows();
         mShowFragment = showFragment;
 //        Log.e(TAG, "show: " + mShowFragment.toString());
     }
 
-    private void addFragment() {
-        FragmentUtil.Adapter<ImageBucketFragment> bucketFragmentAdapter = ImageBucketFragment.getAdapter();
-        FragmentUtil.Adapter<ImageListFragment> listFragmentAdapter = ImageListFragment.getAdapter();
-
-        ImageBucketFragment imageBucketFragment = bucketFragmentAdapter.onCreateFragment(null);
-        String imageBucketFragmentTag = bucketFragmentAdapter.getFragmentTag();
-
-        ImageListFragment imageListFragment = listFragmentAdapter.onCreateFragment(null);
-        String imageListFragmentTag = listFragmentAdapter.getFragmentTag();
-
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.media_fl_content, imageBucketFragment, imageBucketFragmentTag)
-                .add(R.id.media_fl_content, imageListFragment, imageListFragmentTag)
-                .hide(imageListFragment)
-                .show(imageBucketFragment)
-                .commit();
-        mShowFragment = imageBucketFragment;
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

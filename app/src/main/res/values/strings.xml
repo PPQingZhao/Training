@@ -4,5 +4,6 @@
     <string name="title_home">Home</string>
     <string name="title_imagebucket">Photo Album</string>
     <string name="title_imagelist">Image List</string>
+    <string name="title_imagedetail">Image Detail</string>
 
 </resources>

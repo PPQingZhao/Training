@@ -4,6 +4,8 @@ import android.util.Log;
 
 import org.junit.Test;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -21,8 +23,10 @@ public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() {
 
-        class F {}
-        class S extends F {}
+        class F {
+        }
+        class S extends F {
+        }
         F f = new F();
         S s = new S();
 
@@ -37,5 +41,13 @@ public class ExampleUnitTest {
         System.out.println(s.getClass().isAssignableFrom(F.class));
 
 
+    }
+
+    @Test
+    public void simpleDateformatTest() {
+        SimpleDateFormat yyyy_MM_dd = new SimpleDateFormat("yyyy-MM-dd \nhh:mm:ss");
+        long millis = System.currentTimeMillis();
+
+        System.out.println(yyyy_MM_dd.format(new Date(millis)));
     }
 }

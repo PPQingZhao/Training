@@ -1,5 +1,7 @@
 package com.pp.media.callback;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.databinding.ObservableList;
 
@@ -20,7 +22,7 @@ public class OnBeanListChangedCallBack<Item, Bean> extends OnFullListChangeCallB
 
     @Override
     public void onItemRangeInserted(ObservableList<Bean> sender, int positionStart, int itemCount) {
-//        Log.e(TAG, "onItemRangeInserted size:  " + sender.size() + "   start: " + positionStart + "   count: " + itemCount);
+        Log.e(TAG, "onItemRangeInserted size:  " + sender.size() + "   start: " + positionStart + "   count: " + itemCount);
         Bean bean;
         Item item;
         List<Item> tempList = new ArrayList<>();

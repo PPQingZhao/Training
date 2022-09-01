@@ -5,6 +5,8 @@ import com.pp.mvvm.event.ViewEvent;
 public class MediaEvent<T> extends ViewEvent<T> {
     public static final String ACTION_SEND_IMAGEBUCKET_FOR_IMAGLIST = "Send imagebucket for imagelist fragment";
     public static final String ACTION_ON_IMAGELIST_BACKPRESSED = "On ImageListFragment backpressed";
+    public static final String ACTION_ON_IMAGEDETAIL_BACKPRESSED = "On ImageDetailFragment backpressed";
+    public static final String ACTION_SEND_IMAGE_FOR_IMAGDETAIL = "Send image for imagedetail fragment";
 
     public static <Data> MediaEvent<Data> newEvent(Data data, String type) {
         MediaEvent<Data> event = new MediaEvent<>();

@@ -2,7 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data class="MediaListDataBinding">
+    <data class="ImageListDataBinding">
 
         <variable
             name="viewModel"
@@ -35,7 +35,7 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:onClick="@{clickHandler.onBackPressed}"
-                android:src="@drawable/ic_arrow_back_white" />
+                android:src="@drawable/ic_arrow_left" />
 
             <TextView
                 style="@style/StyleTitle"
@@ -47,22 +47,10 @@
 
         </LinearLayout>
 
-        <ProgressBar
-            android:id="@+id/media_progressbar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/imagelist_ll_title">
-
-        </ProgressBar>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/media_recyclerview"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"

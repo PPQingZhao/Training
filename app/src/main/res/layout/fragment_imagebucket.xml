@@ -35,7 +35,7 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:onClick="@{clickHandler.onBackPressed}"
-                android:src="@drawable/ic_arrow_back_white" />
+                android:src="@drawable/ic_arrow_left" />
 
             <TextView
                 style="@style/StyleTitle"

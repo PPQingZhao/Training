@@ -7,6 +7,7 @@ import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.pp.media.R;
@@ -17,6 +18,11 @@ public class BindingAdapter extends BaseObservable {
     @androidx.databinding.BindingAdapter("android:bindText")
     public static void setText(TextView view, String content) {
         view.setText(content);
+    }
+
+    @androidx.databinding.BindingAdapter("android:bindText")
+    public static void setText(TextView view, CharSequence charSequence) {
+        view.setText(charSequence);
     }
 
 
