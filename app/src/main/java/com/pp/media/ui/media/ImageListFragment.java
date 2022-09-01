@@ -1,46 +1,42 @@
 package com.pp.media.ui.media;
 
 
-import android.Manifest;
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.databinding.ObservableList;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.pp.media.MediaApplication;
 import com.pp.media.R;
 import com.pp.media.adapter.MultiltemAdapter;
-import com.pp.media.adapter.OnItemListChangedCallback;
+import com.pp.media.base.BaseFragment;
+import com.pp.media.callback.OnFullListChangeCallBack;
+import com.pp.media.callback.OnItemListChangedCallback;
 import com.pp.media.databinding.MediaListDataBinding;
-import com.pp.media.repository.MediaRepository;
+import com.pp.media.media.ImageBucket;
 import com.pp.media.rxjava.DisposableLifecycleObserver;
-import com.pp.media.callback.FullOnListChangeCallBack;
-import com.pp.media.ui.media.model.MediaItemViewModel;
+import com.pp.media.ui.MediaShareViewModel;
+import com.pp.media.ui.event.MediaEvent;
+import com.pp.media.ui.media.model.ImageListItemViewModel;
 import com.pp.media.util.FragmentUtil;
-import com.pp.mvvm.base.LifecycleFragment;
 
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
+import static com.chad.library.adapter.base.BaseQuickAdapter.ALPHAIN;
 
 
-public class ImageListFragment extends LifecycleFragment<MediaListDataBinding, ImageListViewModel> {
+public class ImageListFragment extends BaseFragment<MediaListDataBinding, ImageListViewModel> {
 
-    private MultiltemAdapter<MediaItemViewModel> mAdapter;
-    private static final int CODE_PERMISSION = 1;
+    private static final String TAG = "ImageListFragment";
+    private MultiltemAdapter<ImageListItemViewModel> mAdapter;
     private DisposableLifecycleObserver mDisposableLifecycleObserver;
 
     @Override
@@ -53,28 +49,32 @@ public class ImageListFragment extends LifecycleFragment<MediaListDataBinding, I
         return R.layout.fragment_imagelist;
     }
 
-    public static void injectInto(@NonNull FragmentActivity activity, @IdRes int container) {
-        FragmentUtil.addFragment(
-                activity,
-                container,
-                new FragmentUtil.Adapter<ImageListFragment>() {
-                    @NonNull
-                    @Override
-                    public ImageListFragment onCreateFragment(Fragment fragmentByTag) {
-                        if (null != fragmentByTag
-                                && fragmentByTag.getClass().isAssignableFrom(ImageListFragment.class)
-                                && ImageListFragment.class.isAssignableFrom(fragmentByTag.getClass()))  {
-                            return (ImageListFragment) fragmentByTag;
-                        }else{
-                            return new ImageListFragment();
-                        }
-                    }
+    static FragmentUtil.Adapter<ImageListFragment> sAapter;
 
-                    @Override
-                    public String getFragmentTag() {
-                        return String.valueOf(R.string.title_imagelist);
+    public static FragmentUtil.Adapter<ImageListFragment> getAdapter() {
+        if (null == sAapter) {
+
+            sAapter = new FragmentUtil.Adapter<ImageListFragment>() {
+                String fragmentTag = FragmentUtil.getFragmentTag(MediaApplication.getInstance(), R.string.title_imagelist);
+
+                @NonNull
+                @Override
+                public ImageListFragment onCreateFragment(Fragment fragmentByTag) {
+                    if (FragmentUtil.isCreateBy(fragmentByTag, ImageListFragment.class)) {
+                        return (ImageListFragment) fragmentByTag;
+                    } else {
+                        return new ImageListFragment();
                     }
-                });
+                }
+
+                @Override
+                public String getFragmentTag() {
+                    return fragmentTag;
+                }
+            };
+        }
+        return sAapter;
+
     }
 
     @SuppressLint("CheckResult")
@@ -82,110 +82,80 @@ public class ImageListFragment extends LifecycleFragment<MediaListDataBinding, I
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mBindingHelper.getDataBinding().setClickHandler(this);
         mDisposableLifecycleObserver = DisposableLifecycleObserver.newInstance();
         getLifecycle().addObserver(mDisposableLifecycleObserver);
 
         // init  recyclervew
         RecyclerView recyclerview = mBindingHelper.getDataBinding().mediaRecyclerview;
         recyclerview.setLayoutManager(new GridLayoutManager(getContext(), 4));
-        mAdapter = new MultiltemAdapter<MediaItemViewModel>(null);
-        mAdapter.addItemType(MediaItemViewModel.ITEMTYPE, R.layout.item_media);
+
+        mAdapter = new MultiltemAdapter<ImageListItemViewModel>(null);
+        mAdapter.addItemType(ImageListItemViewModel.ITEMTYPE, R.layout.item_image_list);
         recyclerview.setAdapter(mAdapter);
-
-        mBindingHelper.getViewModel().addOnMediaChangCallback(new OnItemListChangedCallback<MediaItemViewModel>(mAdapter));
-        // 用于更新 progressbar
-        mBindingHelper.getViewModel().addOnMediaChangCallback(new FullOnListChangeCallBack<ObservableList<MediaItemViewModel>>() {
-
-
-            @Override
-            public void onItemRangeInserted(ObservableList<MediaItemViewModel> sender, int positionStart, int itemCount) {
-                sender.removeOnListChangedCallback(this);
-//                Log.e("TAG", "count: " + sender.size() + "    " + itemCount);
-                mBindingHelper.getViewModel().title.set(new StringBuilder("Media")
-                        .append("(")
-                        .append(sender.size())
-                        .append(")")
-                        .toString());
-
-                final ProgressBar mediaProgressbar = mBindingHelper.getDataBinding().mediaProgressbar;
-                final RecyclerView mediaRecyclerview = mBindingHelper.getDataBinding().mediaRecyclerview;
-
-                mediaProgressbar.setVisibility(View.GONE);
-                mDisposableLifecycleObserver.addDisposale(Observable.just(1)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Consumer<Integer>() {
-                            @Override
-                            public void accept(Integer integer) throws Exception {
-                                mediaRecyclerview.setVisibility(View.VISIBLE);
-                                ObjectAnimator alphaRV = ObjectAnimator.ofFloat(mediaRecyclerview, "alpha", 0.1f, 1f);
-                                alphaRV.setDuration(1000);
-                                alphaRV.start();
-                            }
-                        }));
-            }
-        });
-
+        mAdapter.openLoadAnimation(ALPHAIN);
+        mAdapter.isFirstOnly(false);
 
         mBindingHelper.getDataBinding().mediaProgressbar.setVisibility(View.VISIBLE);
         mBindingHelper.getDataBinding().mediaRecyclerview.setVisibility(View.GONE);
 
+        mBindingHelper.getViewModel().addOnItemChangedCallback(this, new OnItemListChangedCallback<ImageListItemViewModel>(mAdapter));
 
-        mDisposableLifecycleObserver.addDisposale(Observable.just(1)
-                .delay(500, TimeUnit.MILLISECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Integer>() {
-                    @Override
-                    public void accept(Integer integer) throws Exception {
-                        loadMedia();
-                    }
-                }));
+        // 用于更新 progressbar
+        mBindingHelper.getViewModel().addOnItemChangedCallback(this, new OnFullListChangeCallBack<ObservableList<ImageListItemViewModel>>() {
 
+            @Override
+            public void onItemRangeInserted(ObservableList<ImageListItemViewModel> sender, int positionStart, int itemCount) {
+                sender.removeOnListChangedCallback(this);
+//                Log.e("TAG", "count: " + sender.size() + "    " + itemCount);
+
+                final ProgressBar mediaProgressbar = mBindingHelper.getDataBinding().mediaProgressbar;
+                final RecyclerView mediaRecyclerview = mBindingHelper.getDataBinding().mediaRecyclerview;
+                mediaRecyclerview.setVisibility(View.VISIBLE);
+
+                mediaProgressbar.setVisibility(View.GONE);
+            }
+        });
+
+        MediaShareViewModel mediaShareViewModel = getShareViewModel();
 
     }
 
+    private MediaShareViewModel getShareViewModel() {
+
+        MediaShareViewModel shareViewModel = MediaShareViewModel.get(getActivity());
+        shareViewModel.mSender.observe(this, new Observer<MediaEvent>() {
+            @Override
+            public void onChanged(MediaEvent mediaEvent) {
+//                Log.e(TAG, mediaEvent.getType());
+                switch (mediaEvent.getType()) {
+                    case MediaEvent.ACTION_SEND_IMAGEBUCKET_FOR_IMAGLIST:
+                        ImageBucket imageBucket = (ImageBucket) mediaEvent.getDataOwner().getData();
+                        String title = new StringBuilder().append(imageBucket.getDisPlayName())
+                                .append("(")
+                                .append(imageBucket.getImageMap().size())
+                                .append(")").toString();
+
+                        mBindingHelper.getViewModel().titleState.set(title);
+
+                        mBindingHelper.getViewModel().setData(imageBucket, mAdapter);
+                        return;
+                    default:
+                        break;
+                }
+            }
+        });
+        return shareViewModel;
+    }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (CODE_PERMISSION != requestCode) {
-            return;
-        }
-        String[] deniedPermissons = new String[permissions.length];
-        for (int i = 0; i < permissions.length; i++) {
-            // 权限拒绝
-            if (PackageManager.PERMISSION_DENIED == grantResults[i]) {
-                deniedPermissons[i] = permissions[i];
-            } else {
-                onGrantedPermission(permissions[i]);
-            }
-        }
+    public boolean handleBackPressed() {
+        MediaShareViewModel.get(getActivity()).mSender.setValue(MediaEvent.newEvent(MediaEvent.ACTION_ON_IMAGELIST_BACKPRESSED));
 
-        if (deniedPermissons.length > 0) {
-            onDeniedPermission(deniedPermissons);
-        }
+        return true;
     }
 
-    private void onDeniedPermission(String[] deniedPermissons) {
-
-    }
-
-    private void onGrantedPermission(String permission) {
-        if (Manifest.permission.READ_EXTERNAL_STORAGE.equals(permission)) {
-            loadMedia();
-        }
-    }
-
-    private void loadMedia() {
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, CODE_PERMISSION);
-            return;
-        }
-
-        MediaRepository mediaRepository = MediaRepository.MediaRepositoryFactory.create();
-        getLifecycle().addObserver(mediaRepository);
-
-        // load data
-        ObservableList<MediaItemViewModel> dataList = mBindingHelper.getViewModel().loadMedia(getContext(), mediaRepository);
-        mAdapter.setNewData(dataList);
-
+    public void onBackPressed(View view) {
+        handleBackPressed();
     }
 }

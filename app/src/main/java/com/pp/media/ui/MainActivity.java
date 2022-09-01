@@ -8,6 +8,7 @@ import com.pp.media.R;
 import com.pp.media.base.BaseActivity;
 import com.pp.media.databinding.MainDataBing;
 import com.pp.media.ui.home.MainFragment;
+import com.pp.media.util.FragmentUtil;
 
 
 public class MainActivity extends BaseActivity<MainDataBing, MainViewModel> {
@@ -29,12 +30,7 @@ public class MainActivity extends BaseActivity<MainDataBing, MainViewModel> {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        MainFragment mainFragment = MainFragment.newInstance();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.main_fl_content, mainFragment, tagMain)
-                .show(mainFragment)
-                .commit();
+        FragmentUtil.addFragment(this, R.id.main_fl_content, MainFragment.getAdapter());
 
     }
 }

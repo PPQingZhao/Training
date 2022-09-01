@@ -1,58 +1,73 @@
 package com.pp.media.ui.media;
 
-import android.Manifest;
 import android.app.Application;
-import android.content.Context;
-import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresPermission;
 import androidx.databinding.ObservableArrayList;
 import androidx.databinding.ObservableField;
 import androidx.databinding.ObservableList;
 import androidx.lifecycle.LifecycleOwner;
 
-import com.pp.media.repository.MediaRepository;
-import com.pp.media.ui.media.callback.OnMediaListChangeCallBack;
-import com.pp.media.ui.media.model.MediaItemViewModel;
+import com.pp.media.adapter.MultiltemAdapter;
+import com.pp.media.callback.RecycleCallbackHolder;
+import com.pp.media.callback.OnBeanListChangedCallBack;
+import com.pp.media.callback.OnListHoldCallbackListener;
+import com.pp.media.media.Image;
+import com.pp.media.media.ImageBucket;
+import com.pp.media.ui.media.model.ImageListItemViewModel;
 import com.pp.mvvm.base.LifecycleViewModel;
-import com.pp.mvvm.event.ViewEvent;
-import com.pp.mvvm.event.ViewEventHandler;
 
 public class ImageListViewModel extends LifecycleViewModel {
 
-    public final ObservableField<String> title = new ObservableField<>();
-    private ObservableList.OnListChangedCallback<ObservableList<MediaItemViewModel>> mMediaListChangeCallback;
+    public final ObservableField<String> titleState = new ObservableField<>();
+    private ImageBucket mImageBucket;
 
     public ImageListViewModel(@NonNull Application application) {
         super(application);
-        title.set("Media");
-    }
-
-    public void onBack(View v) {
-        setEvent(new ViewEvent(ViewEventHandler.UI_EVENT_FINISHACTIVITY));
-    }
-
-    private final ObservableList<MediaItemViewModel> mMediaList = new ObservableArrayList<>();
-
-    public void addOnMediaChangCallback(ObservableList.OnListChangedCallback<ObservableList<MediaItemViewModel>> callback) {
-        this.mMediaListChangeCallback = callback;
-        mMediaList.addOnListChangedCallback(callback);
-    }
-
-    @RequiresPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-    public ObservableList<MediaItemViewModel> loadMedia(Context ctx, MediaRepository repository) {
-//        repository.addOnImageBucketChangedCallback((new OnMediaListChangeCallBack(mMediaList)));
-        if (mMediaList.size() == 0) {
-//            repository.load(ctx);
-        }
-        return mMediaList;
     }
 
     @Override
-    public void onDestroy(@NonNull LifecycleOwner owner) {
-//        Log.e("TAG","remove callback 22222");
-        mMediaList.removeOnListChangedCallback(mMediaListChangeCallback);
+    public void onCreate(@NonNull LifecycleOwner owner) {
     }
 
+    private final ObservableList<ImageListItemViewModel> mItemList = new ObservableArrayList<>();
+    RecycleCallbackHolder<ObservableList.OnListChangedCallback<ObservableList<ImageListItemViewModel>>>
+            mCallbackHolder = new RecycleCallbackHolder<ObservableList.OnListChangedCallback<ObservableList<ImageListItemViewModel>>>(new OnListHoldCallbackListener<>(mItemList));
+
+
+    OnBeanListChangedCallBack.Adapter<ImageListItemViewModel, Image> mOnBeanChangedAdapter
+            = new OnBeanListChangedCallBack.Adapter<ImageListItemViewModel, Image>() {
+        ImageListItemViewModel itemViewModel;
+
+        @Override
+        public ImageListItemViewModel createItem(Image image) {
+            itemViewModel = new ImageListItemViewModel();
+            itemViewModel.setImage(image);
+            return itemViewModel;
+        }
+    };
+
+    public void setData(ImageBucket imageBucket, MultiltemAdapter<ImageListItemViewModel> adapter) {
+        if (null != mImageBucket
+                && mImageBucket.getId() == imageBucket.getId()
+                && mImageBucket.getDisPlayName().equals(imageBucket.getDisPlayName())) {
+            return;
+        }
+
+        this.mImageBucket = imageBucket;
+        mItemList.clear();
+
+        ObservableList<Image> imageList = new ObservableArrayList<>();
+        OnBeanListChangedCallBack<ImageListItemViewModel, Image> changedCallBack = new OnBeanListChangedCallBack<>(mItemList, mOnBeanChangedAdapter);
+        imageList.addOnListChangedCallback(changedCallBack);
+
+        imageList.addAll(imageBucket.getImageMap().values());
+        imageList.removeOnListChangedCallback(changedCallBack);
+
+        adapter.setNewData(mItemList);
+    }
+
+    public void addOnItemChangedCallback(LifecycleOwner owner, ObservableList.OnListChangedCallback<ObservableList<ImageListItemViewModel>> changedCallback) {
+        mCallbackHolder.holdCallback(owner, changedCallback);
+    }
 }

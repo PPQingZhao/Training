@@ -2,7 +2,7 @@ package com.pp.media.callback;
 
 import androidx.databinding.ObservableList;
 
-public class FullOnListChangeCallBack<T extends ObservableList> extends ObservableList.OnListChangedCallback<T> {
+public class OnFullListChangeCallBack<T extends ObservableList> extends ObservableList.OnListChangedCallback<T> {
 
     @Override
     public void onChanged(T sender) {

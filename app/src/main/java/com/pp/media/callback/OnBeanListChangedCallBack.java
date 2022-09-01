@@ -1,15 +1,12 @@
 package com.pp.media.callback;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.databinding.ObservableList;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-public class OnBeanListChangedCallBack<Item, Bean> extends FullOnListChangeCallBack<ObservableList<Bean>> {
+public class OnBeanListChangedCallBack<Item, Bean> extends OnFullListChangeCallBack<ObservableList<Bean>> {
     private static final String TAG = "OnListChangeCallBack";
 
     private final ObservableList<Item> mItemList;

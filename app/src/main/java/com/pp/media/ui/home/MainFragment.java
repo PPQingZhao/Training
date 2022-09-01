@@ -8,10 +8,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
+import com.pp.media.MediaApplication;
 import com.pp.media.R;
 import com.pp.media.base.BaseFragment;
 import com.pp.media.databinding.MainFragmentBinding;
 import com.pp.media.ui.media.ImageBucketFragment;
+import com.pp.media.ui.media.ImageListFragment;
 import com.pp.media.util.FragmentUtil;
 
 public class MainFragment extends BaseFragment<MainFragmentBinding, HomeFragmentViewModel> {
@@ -26,34 +28,32 @@ public class MainFragment extends BaseFragment<MainFragmentBinding, HomeFragment
         return R.layout.fragment_main;
     }
 
-    public static MainFragment newInstance(){
-        return new MainFragment();
-    }
 
+    static FragmentUtil.Adapter<MainFragment> sAapter;
 
-    public static void injectInto(@NonNull FragmentActivity activity, @IdRes int container) {
-        FragmentUtil.addFragment(
-                    activity,
-                    container,
-                            new FragmentUtil.Adapter<MainFragment>() {
-                        @NonNull
-                        @Override
-                        public MainFragment onCreateFragment(Fragment fragmentByTag) {
+    public static FragmentUtil.Adapter<MainFragment> getAdapter() {
+        if (null == sAapter) {
 
-                            if (null != fragmentByTag
-                                    && fragmentByTag.getClass().isAssignableFrom(ImageBucketFragment.class)
-                                    && ImageBucketFragment.class.isAssignableFrom(fragmentByTag.getClass())) {
-                                return (MainFragment) fragmentByTag;
-                            } else {
-                                return new MainFragment();
-                            }
-                        }
+            sAapter = new FragmentUtil.Adapter<MainFragment>() {
+                String fragmentTag = FragmentUtil.getFragmentTag(MediaApplication.getInstance(), R.string.title_home);
 
-                        @Override
-                        public String getFragmentTag() {
-                        return String.valueOf(R.string.title_home);
+                @NonNull
+                @Override
+                public MainFragment onCreateFragment(Fragment fragmentByTag) {
+                    if (FragmentUtil.isCreateBy(fragmentByTag, MainFragment.class)) {
+                        return (MainFragment) fragmentByTag;
+                    } else {
+                        return new MainFragment();
                     }
-                });
+                }
+
+                @Override
+                public String getFragmentTag() {
+                    return fragmentTag;
+                }
+            };
+        }
+        return sAapter;
     }
 
     @Override

@@ -10,13 +10,17 @@ import androidx.lifecycle.LifecycleOwner;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LifecycleCallbackHolder<callback> implements DefaultLifecycleObserver {
+/**
+ * 用来帮助回收callbcall
+ * @param <callback>
+ */
+public class RecycleCallbackHolder<callback> implements DefaultLifecycleObserver {
 
-    private static final String TAG = "LifecycleCallbackHolder";
+    private static final String TAG = "RecycleCallbackHolder";
     private final ArrayMap<LifecycleOwner, Holder<callback>> mHolderMap = new ArrayMap<>();
     private OnHoldCallbackListener<callback> mAdapter;
 
-    public LifecycleCallbackHolder(@NonNull OnHoldCallbackListener<callback> adapter) {
+    public RecycleCallbackHolder(@NonNull OnHoldCallbackListener<callback> adapter) {
         this.mAdapter = adapter;
     }
 
@@ -25,6 +29,9 @@ public class LifecycleCallbackHolder<callback> implements DefaultLifecycleObserv
     }
 
     public void holdCallback(LifecycleOwner owner, callback callback) {
+        // 添加生命周期感应
+        owner.getLifecycle().addObserver(this);
+
         Holder<callback> holder = getHolder(owner);
         holder.add(callback);
         mAdapter.onAddCallback(callback);
@@ -34,7 +41,7 @@ public class LifecycleCallbackHolder<callback> implements DefaultLifecycleObserv
         List<callback> callbacks = new ArrayList<>();
         if (mHolderMap.get(owner) != null) {
             callbacks.addAll(mHolderMap.get(owner).mHolders);
-            for (callback c : mHolderMap.get(owner).mHolders) {
+            for (callback c : callbacks) {
                 removeCallback(c);
             }
         }
@@ -63,6 +70,7 @@ public class LifecycleCallbackHolder<callback> implements DefaultLifecycleObserv
     public void onDestroy(@NonNull LifecycleOwner owner) {
         removeCallback(owner);
 //        Log.e(TAG, "destroy: " + owner.toString());
+//        Log.e(TAG, "destroy: " + mHolderMap.size());
     }
 
     private static class Holder<T> {

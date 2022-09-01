@@ -33,7 +33,7 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:onClick="@{viewModel.onMediaClick}"
             android:text="Media"
             android:textAllCaps="false"

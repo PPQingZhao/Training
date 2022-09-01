@@ -7,11 +7,5 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 
 public class MvvmApplication extends Application implements LifecycleObserver {
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-    }
-
 
 }

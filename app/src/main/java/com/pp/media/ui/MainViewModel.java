@@ -13,7 +13,6 @@ public class MainViewModel extends LifecycleViewModel {
 
     public MainViewModel(@NonNull Application application) {
         super(application);
-        MediaRepository.MediaRepositoryFactory.create().init(application);
     }
 
 

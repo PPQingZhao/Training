@@ -1,16 +1,17 @@
 package com.pp.media.ui.media.model;
 
 import android.text.TextUtils;
+import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.databinding.ObservableField;
+import androidx.lifecycle.MutableLiveData;
 
 import com.pp.media.adapter.BaseAbstractExpandleItem;
 import com.pp.media.media.Image;
 import com.pp.media.media.ImageBucket;
-import com.pp.media.repository.bean.Media;
-
-import java.util.Collection;
+import com.pp.media.ui.event.MediaEvent;
+import com.pp.media.ui.event.SharedEvent;
+import com.pp.mvvm.event.ViewEvent;
 
 public class ImageBucketItemViewModel extends BaseAbstractExpandleItem<String> {
     public static final int ITEMTYPE = 0;
@@ -20,6 +21,7 @@ public class ImageBucketItemViewModel extends BaseAbstractExpandleItem<String> {
     public final ObservableField<String> imageCount = new ObservableField<>();
 
     private ImageBucket imageBucket;
+    private MutableLiveData<MediaEvent> mSender;
 
     public ImageBucket getImageBucket() {
         return imageBucket;
@@ -44,8 +46,17 @@ public class ImageBucketItemViewModel extends BaseAbstractExpandleItem<String> {
 
     }
 
+    public void onItemClick(View view) {
+        MediaEvent<ImageBucket> event = MediaEvent.newEvent(imageBucket, MediaEvent.ACTION_SEND_IMAGEBUCKET_FOR_IMAGLIST);
+        mSender.setValue(event);
+    }
+
     @Override
     public int getItemType() {
         return ITEMTYPE;
+    }
+
+    public void setCallbackSender(MutableLiveData<MediaEvent> sender) {
+        this.mSender = sender;
     }
 }

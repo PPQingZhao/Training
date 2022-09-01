@@ -12,7 +12,7 @@ import androidx.databinding.ObservableList;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
-import com.pp.media.callback.LifecycleCallbackHolder;
+import com.pp.media.callback.RecycleCallbackHolder;
 import com.pp.media.media.ImageBucket;
 import com.pp.media.repository.datasource.LocalMediaDataSource;
 
@@ -37,12 +37,7 @@ public class MediaRepository implements DefaultLifecycleObserver {
     MediaRepository() {
     }
 
-    @Override
-    public void onCreate(@NonNull LifecycleOwner owner) {
-        owner.getLifecycle().addObserver(mCallbackHelper);
-    }
-
-    @SuppressLint("MissingPermission")
+    @RequiresPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     public void init(@NonNull Context context) {
         if (null != mContext) {
             throw new ExceptionInInitializerError("MediaRepository has been initialized");
@@ -66,7 +61,7 @@ public class MediaRepository implements DefaultLifecycleObserver {
 
     private final ObservableList<ImageBucket> mList = new ObservableArrayList<>();
 
-    private final LifecycleCallbackHolder<ObservableList.OnListChangedCallback<ObservableList<ImageBucket>>> mCallbackHelper = new LifecycleCallbackHolder<>(new LifecycleCallbackHolder.OnHoldCallbackListener<ObservableList.OnListChangedCallback<ObservableList<ImageBucket>>>() {
+    private final RecycleCallbackHolder<ObservableList.OnListChangedCallback<ObservableList<ImageBucket>>> mCallbackHelper = new RecycleCallbackHolder<>(new RecycleCallbackHolder.OnHoldCallbackListener<ObservableList.OnListChangedCallback<ObservableList<ImageBucket>>>() {
         @Override
         public void onAddCallback(ObservableList.OnListChangedCallback<ObservableList<ImageBucket>> callback) {
             mList.addOnListChangedCallback(callback);
@@ -138,6 +133,7 @@ public class MediaRepository implements DefaultLifecycleObserver {
                 .subscribe(new Consumer<ObservableList<ImageBucket>>() {
                     @Override
                     public void accept(ObservableList<ImageBucket> buckets) throws Exception {
+//                        Log.e(TAG,"size: " + buckets.size());
                         mList.addAll(buckets);
                     }
                 }, new Consumer<Throwable>() {

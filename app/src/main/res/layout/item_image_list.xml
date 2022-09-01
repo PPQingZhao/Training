@@ -6,7 +6,7 @@
 
         <variable
             name="viewModel"
-            type="com.pp.media.ui.media.model.MediaItemViewModel" />
+            type="com.pp.media.ui.media.model.ImageListItemViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
