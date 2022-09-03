@@ -9,9 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.pp.media.adapter.BaseAbstractExpandleItem;
 import com.pp.media.media.Image;
 import com.pp.media.media.ImageBucket;
-import com.pp.media.ui.event.MediaEvent;
-import com.pp.media.ui.event.SharedEvent;
-import com.pp.mvvm.event.ViewEvent;
+import com.pp.media.ui.media.event.MediaEvent;
 
 public class ImageBucketItemViewModel extends BaseAbstractExpandleItem<String> {
     public static final int ITEMTYPE = 0;

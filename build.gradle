@@ -70,6 +70,7 @@ ext {
             debugLeakcanary    : "com.squareup.leakcanary:leakcanary-android:$debugLeakcanaryVersion",
             photoView          : "com.github.chrisbanes:PhotoView:$photoViewVersion",
 
+
     ]
 
 }

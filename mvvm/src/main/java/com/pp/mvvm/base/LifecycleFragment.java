@@ -27,7 +27,7 @@ public abstract class LifecycleFragment<DB extends ViewDataBinding, VM extends L
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mBindingHelper = DataBindingHelper.get(this, new DataBindingHelper.InflateAdapter<DB, VM>() {
+        mBindingHelper = DataBindingHelper.get(this, new DataBindingHelper.FragmentAdapter<DB, VM>() {
             @NonNull
             @Override
             public LayoutInflater getInflater() {

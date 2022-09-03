@@ -6,22 +6,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowInsets;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 
 import com.pp.media.R;
 import com.pp.media.base.BaseActivity;
 import com.pp.media.databinding.MediaDataBinding;
-import com.pp.media.ui.MediaShareViewModel;
-import com.pp.media.ui.event.MediaEvent;
+import com.pp.media.ui.media.event.MediaEvent;
 import com.pp.media.util.FragmentUtil;
 import com.pp.mvvm.event.ViewEvent;
 
@@ -80,9 +76,9 @@ public class MediaActivity extends BaseActivity<MediaDataBinding, MediaViewModel
                     case MediaEvent.ACTION_ON_IMAGEDETAIL_BACKPRESSED:
                         showFragment(R.string.title_imagelist);
                         return;
-                    case MediaEvent.ACTION_SEND_IMAGE_FOR_IMAGDETAIL:
-                        showFragment(R.string.title_imagedetail);
-                        return;
+//                    case MediaEvent.ACTION_ON_IMAGELIST_ITME_CLICK:
+//                        showFragment(R.string.title_imagedetail);
+//                        return;
                     default:
                         break;
                 }
@@ -100,9 +96,6 @@ public class MediaActivity extends BaseActivity<MediaDataBinding, MediaViewModel
 
         Fragment showFragment;
         switch (tagFragment) {
-            case R.string.title_imagedetail:
-                showFragment = FragmentUtil.addFragment(this, R.id.media_fl_content, ImageDetailFragment.getAdapter());
-                break;
             case R.string.title_imagelist:
                 showFragment = FragmentUtil.addFragment(this, R.id.media_fl_content, ImageListFragment.getAdapter());
                 break;

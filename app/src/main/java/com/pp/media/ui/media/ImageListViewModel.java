@@ -3,7 +3,6 @@ package com.pp.media.ui.media;
 import android.app.Application;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.TextAppearanceSpan;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.ObservableArrayList;
@@ -14,20 +13,27 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.pp.media.R;
 import com.pp.media.adapter.MultiltemAdapter;
-import com.pp.media.callback.RecycleCallbackHolder;
 import com.pp.media.callback.OnBeanListChangedCallBack;
-import com.pp.media.callback.OnListHoldCallbackListener;
+import com.pp.media.lifecycle.LifecycleObjectHolder;
+import com.pp.media.lifecycle.OnListCallbackHolderListener;
 import com.pp.media.media.Image;
 import com.pp.media.media.ImageBucket;
-import com.pp.media.ui.event.MediaEvent;
+import com.pp.media.ui.media.event.MediaEvent;
 import com.pp.media.ui.media.model.ImageListItemViewModel;
+import com.pp.media.ui.media.model.ImagePageItemViewModel;
+import com.pp.media.ui.media.model.ImagePageListItemViewModel;
 import com.pp.mvvm.base.LifecycleViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ImageListViewModel extends LifecycleViewModel {
 
     public final ObservableField<CharSequence> titleState = new ObservableField<>();
     private ImageBucket mImageBucket;
     private MutableLiveData<MediaEvent> mItemSender;
+    private ArrayList<ImagePageItemViewModel> mImagePageDatas = new ArrayList<>();
+    private ArrayList<ImagePageListItemViewModel> mImagePageListDatas = new ArrayList<>();
 
     public ImageListViewModel(@NonNull Application application) {
         super(application);
@@ -38,8 +44,6 @@ public class ImageListViewModel extends LifecycleViewModel {
     }
 
     private final ObservableList<ImageListItemViewModel> mItemList = new ObservableArrayList<>();
-    RecycleCallbackHolder<ObservableList.OnListChangedCallback<ObservableList<ImageListItemViewModel>>>
-            mCallbackHolder = new RecycleCallbackHolder<ObservableList.OnListChangedCallback<ObservableList<ImageListItemViewModel>>>(new OnListHoldCallbackListener<>(mItemList));
 
 
     OnBeanListChangedCallBack.Adapter<ImageListItemViewModel, Image> mOnBeanChangedAdapter
@@ -64,6 +68,8 @@ public class ImageListViewModel extends LifecycleViewModel {
 
         this.mImageBucket = imageBucket;
         mItemList.clear();
+        mImagePageDatas.clear();
+        mImagePageListDatas.clear();
 
         ObservableList<Image> imageList = new ObservableArrayList<>();
         OnBeanListChangedCallBack<ImageListItemViewModel, Image> changedCallBack = new OnBeanListChangedCallBack<>(mItemList, mOnBeanChangedAdapter);
@@ -93,11 +99,46 @@ public class ImageListViewModel extends LifecycleViewModel {
         titleState.set(spanTitle);
     }
 
+    final LifecycleObjectHolder<ObservableList.OnListChangedCallback<ObservableList<ImageListItemViewModel>>> callbackHolder = new LifecycleObjectHolder<>();
+
     public void addOnItemChangedCallback(LifecycleOwner owner, ObservableList.OnListChangedCallback<ObservableList<ImageListItemViewModel>> changedCallback) {
-        mCallbackHolder.holdCallback(owner, changedCallback);
+        callbackHolder.holde(owner, changedCallback, new OnListCallbackHolderListener<>(mItemList));
     }
 
     public void setItemSender(MutableLiveData<MediaEvent> sender) {
         this.mItemSender = sender;
+    }
+
+    public List<ImagePageItemViewModel> getImagePageData() {
+        if (mImagePageDatas.size() == 0) {
+            if (null != mImageBucket) {
+                ImagePageItemViewModel itemViewModel;
+                for (Image image : mImageBucket.getImageMap().values()) {
+                    itemViewModel = new ImagePageItemViewModel();
+                    itemViewModel.setImage(image);
+                    mImagePageDatas.add(itemViewModel);
+                }
+            }
+        }
+        return mImagePageDatas;
+    }
+
+    public List<ImagePageListItemViewModel> getImagePageListData() {
+        if (mImagePageListDatas.size() == 0) {
+            if (null != mImageBucket) {
+                ImagePageListItemViewModel itemViewModel;
+                for (Image image : mImageBucket.getImageMap().values()) {
+                    itemViewModel = new ImagePageListItemViewModel();
+                    itemViewModel.setImage(image);
+                    mImagePageListDatas.add(itemViewModel);
+                }
+            }
+        }
+        return mImagePageListDatas;
+    }
+
+    public int getImagePos(Image image) {
+        int pos = new ArrayList<>(mImageBucket.getImageMap().values()).indexOf(image);
+        return pos;
     }
 }

@@ -57,4 +57,9 @@ public class MainFragment extends BaseFragment<MainFragmentBinding, HomeFragment
         super.onCreate(savedInstanceState);
 
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 }

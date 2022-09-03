@@ -12,7 +12,8 @@ import androidx.databinding.ObservableList;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
-import com.pp.media.callback.RecycleCallbackHolder;
+import com.pp.media.lifecycle.LifecycleObjectHolder;
+import com.pp.media.lifecycle.OnListCallbackHolderListener;
 import com.pp.media.media.ImageBucket;
 import com.pp.media.repository.datasource.LocalMediaDataSource;
 
@@ -39,6 +40,7 @@ public class MediaRepository implements DefaultLifecycleObserver {
 
     @RequiresPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     public void init(@NonNull Context context) {
+        Log.e(TAG, "MediaRepository  init");
         if (null != mContext) {
             throw new ExceptionInInitializerError("MediaRepository has been initialized");
         }
@@ -61,26 +63,12 @@ public class MediaRepository implements DefaultLifecycleObserver {
 
     private final ObservableList<ImageBucket> mList = new ObservableArrayList<>();
 
-    private final RecycleCallbackHolder<ObservableList.OnListChangedCallback<ObservableList<ImageBucket>>> mCallbackHelper = new RecycleCallbackHolder<>(new RecycleCallbackHolder.OnHoldCallbackListener<ObservableList.OnListChangedCallback<ObservableList<ImageBucket>>>() {
-        @Override
-        public void onAddCallback(ObservableList.OnListChangedCallback<ObservableList<ImageBucket>> callback) {
-            mList.addOnListChangedCallback(callback);
-        }
-
-        @Override
-        public void onRemoveCallack(ObservableList.OnListChangedCallback<ObservableList<ImageBucket>> callack) {
-            mList.removeOnListChangedCallback(callack);
-        }
-    });
+    final LifecycleObjectHolder<ObservableList.OnListChangedCallback<ObservableList<ImageBucket>>> callbackHolder = new LifecycleObjectHolder<>();
 
     public void addOnImageBucketChangedCallback(LifecycleOwner owner, ObservableList.OnListChangedCallback<ObservableList<ImageBucket>> callback) {
         if (null != callback) {
-            mCallbackHelper.holdCallback(owner, callback);
+            callbackHolder.holde(owner, callback, new OnListCallbackHolderListener<>(mList));
         }
-    }
-
-    public void removeOnMediaListChangeCallBack(ObservableList.OnListChangedCallback<ObservableList<ImageBucket>> callback) {
-        mCallbackHelper.removeCallback(callback);
     }
 
     /**
@@ -106,6 +94,7 @@ public class MediaRepository implements DefaultLifecycleObserver {
                     }
                 })
                 .subscribe(new Consumer<IMediaDataSource>() {
+                    @SuppressLint("MissingPermission")
                     @Override
                     public void accept(IMediaDataSource dataSource) throws Exception {
                         load(dataSource);
@@ -113,6 +102,7 @@ public class MediaRepository implements DefaultLifecycleObserver {
                 });
     }
 
+    @RequiresPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     private void load(IMediaDataSource dataSource) {
 
         if (null == mContext) {
@@ -133,7 +123,7 @@ public class MediaRepository implements DefaultLifecycleObserver {
                 .subscribe(new Consumer<ObservableList<ImageBucket>>() {
                     @Override
                     public void accept(ObservableList<ImageBucket> buckets) throws Exception {
-//                        Log.e(TAG,"size: " + buckets.size());
+                        Log.e(TAG, "imagebucket size: " + buckets.size());
                         mList.addAll(buckets);
                     }
                 }, new Consumer<Throwable>() {

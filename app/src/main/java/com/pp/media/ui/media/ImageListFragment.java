@@ -3,8 +3,8 @@ package com.pp.media.ui.media;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,12 +19,17 @@ import com.pp.media.adapter.MultiltemAdapter;
 import com.pp.media.base.BaseFragment;
 import com.pp.media.callback.OnItemListChangedCallback;
 import com.pp.media.databinding.ImageListDataBinding;
+import com.pp.media.media.Image;
 import com.pp.media.media.ImageBucket;
-import com.pp.media.rxjava.DisposableLifecycleObserver;
-import com.pp.media.ui.MediaShareViewModel;
-import com.pp.media.ui.event.MediaEvent;
+import com.pp.media.ui.media.event.MediaEvent;
 import com.pp.media.ui.media.model.ImageListItemViewModel;
+import com.pp.media.ui.media.model.ImagePageItemViewModel;
+import com.pp.media.ui.media.model.ImagePageListItemViewModel;
 import com.pp.media.util.FragmentUtil;
+import com.pp.media.widget.imagepage.ImagePageView;
+import com.pp.media.widget.window.PhotoWindow;
+
+import java.util.List;
 
 import static com.chad.library.adapter.base.BaseQuickAdapter.ALPHAIN;
 
@@ -33,6 +38,8 @@ public class ImageListFragment extends BaseFragment<ImageListDataBinding, ImageL
 
     private static final String TAG = "ImageListFragment";
     private MultiltemAdapter<ImageListItemViewModel> mAdapter;
+    private PhotoWindow mPhotoWindow;
+    private ImagePageView mImagePageView;
 
     @Override
     public Class<ImageListViewModel> getModelClass() {
@@ -56,10 +63,10 @@ public class ImageListFragment extends BaseFragment<ImageListDataBinding, ImageL
                 @Override
                 public ImageListFragment onCreateFragment(Fragment fragmentByTag) {
                     if (FragmentUtil.isCreateBy(fragmentByTag, ImageListFragment.class)) {
-                        Log.e(TAG,"1111111111111");
+//                        Log.e(TAG, "1111111111111");
                         return (ImageListFragment) fragmentByTag;
                     } else {
-                        Log.e(TAG,"22222222222222");
+//                        Log.e(TAG, "22222222222222");
                         return new ImageListFragment();
                     }
                 }
@@ -109,18 +116,64 @@ public class ImageListFragment extends BaseFragment<ImageListDataBinding, ImageL
                         ImageBucket imageBucket = (ImageBucket) mediaEvent.getDataOwner().getData();
                         mBindingHelper.getViewModel().setData(imageBucket, mAdapter);
                         return;
+                    case MediaEvent.ACTION_ON_IMAGELIST_ITME_CLICK:
+                        Image image = (Image) mediaEvent.getDataOwner().getData();
+                        showImageDetailWindow(image);
+                        return;
                     default:
                         break;
                 }
             }
+
         });
 
         mBindingHelper.getViewModel().setItemSender(shareViewModel.mSender);
+
         return shareViewModel;
+    }
+
+    /**
+     * 展示ImageDetail window
+     *
+     * @param image 窗口当前展示的image
+     */
+    private void showImageDetailWindow(Image image) {
+        if (null == mPhotoWindow) {
+            mPhotoWindow = new PhotoWindow(getActivity());
+        }
+
+        if (null == mImagePageView) {
+            mImagePageView = new ImagePageView(getActivity().getApplication(), getContext(), this);
+            mImagePageView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            mImagePageView.addImagedItemType(ImagePageItemViewModel.ITEM_TYPE, R.layout.item_imagepage);
+            mImagePageView.addImageListItemType(ImagePageListItemViewModel.ITEM_TYPE, R.layout.item_imagepagelist);
+
+            List<ImagePageItemViewModel> imagePageData = mBindingHelper.getViewModel().getImagePageData();
+            mImagePageView.setData(imagePageData);
+
+            List<ImagePageListItemViewModel> imagePageListData= mBindingHelper.getViewModel().getImagePageListData();
+            mImagePageView.setImageListData(imagePageListData);
+        }
+
+        int showPosition = mBindingHelper.getViewModel().getImagePos(image);
+        mImagePageView.scrollToPos(showPosition);
+
+        mPhotoWindow.show(mImagePageView);
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     @Override
     public boolean handleBackPressed() {
+        if (null != mPhotoWindow && mPhotoWindow.isShowing()) {
+            mPhotoWindow.dismiss();
+            return true;
+        }
+
         MediaShareViewModel.get(getActivity()).mSender.setValue(MediaEvent.newEvent(MediaEvent.ACTION_ON_IMAGELIST_BACKPRESSED));
 
         return true;

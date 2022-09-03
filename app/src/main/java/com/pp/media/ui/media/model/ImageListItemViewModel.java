@@ -9,9 +9,9 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.pp.media.adapter.BaseAbstractExpandleItem;
 import com.pp.media.media.Image;
-import com.pp.media.ui.event.MediaEvent;
+import com.pp.media.ui.media.event.MediaEvent;
 
-public class ImageListItemViewModel extends BaseAbstractExpandleItem<String> {
+public class ImageListItemViewModel extends BaseAbstractExpandleItem {
     public static final int ITEMTYPE = 0;
 
     public final ObservableField<String> src = new ObservableField<>();
@@ -41,6 +41,6 @@ public class ImageListItemViewModel extends BaseAbstractExpandleItem<String> {
     }
 
     public void onItemClick(View v){
-        mSender.setValue(MediaEvent.newEvent(image,MediaEvent.ACTION_SEND_IMAGE_FOR_IMAGDETAIL));
+        mSender.setValue(MediaEvent.newEvent(image,MediaEvent.ACTION_ON_IMAGELIST_ITME_CLICK));
     }
 }

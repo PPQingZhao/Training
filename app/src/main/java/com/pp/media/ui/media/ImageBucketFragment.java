@@ -3,16 +3,12 @@ package com.pp.media.ui.media;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,7 +20,6 @@ import com.pp.media.base.BaseFragment;
 import com.pp.media.callback.OnItemListChangedCallback;
 import com.pp.media.databinding.ImageBucketBinding;
 import com.pp.media.repository.MediaRepository;
-import com.pp.media.ui.MediaShareViewModel;
 import com.pp.media.ui.media.model.ImageBucketItemViewModel;
 import com.pp.media.util.FragmentUtil;
 import com.pp.mvvm.event.ViewEvent;
@@ -118,6 +113,8 @@ public class ImageBucketFragment extends BaseFragment<ImageBucketBinding, ImageB
 //                Log.e(TAG, viewEvent.getType());
             }
         });
+
+
         return shareViewModel;
     }
 

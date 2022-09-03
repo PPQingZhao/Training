@@ -15,7 +15,7 @@
         <item name="windowActionBar">false</item>
     </style>
 
-    <style name="MainTheme" parent="AppTheme">
+    <style name="MainTheme" parent="BaseTheme">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
 
@@ -24,7 +24,7 @@
     </style>
 
     <style name="MediaTheme" parent="BaseTheme">
-        <item name="android:background">@color/colorMediaTheme</item>
+        <item name="android:windowBackground">@color/colorBlack</item>
     </style>
 
     <style name="StyleTitle">

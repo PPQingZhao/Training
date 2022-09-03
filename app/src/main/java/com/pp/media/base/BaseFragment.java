@@ -48,6 +48,12 @@ public abstract class BaseFragment<DB extends ViewDataBinding, VM extends Lifecy
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        mHidden = true;
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.v(TAG, "onCreate");
@@ -59,4 +65,5 @@ public abstract class BaseFragment<DB extends ViewDataBinding, VM extends Lifecy
         mHidden = hidden;
 //        Log.e("TAG", hidden + "    onHiddenChanged: " + toString());
     }
+
 }

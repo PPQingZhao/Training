@@ -16,11 +16,11 @@ import com.pp.media.R;
 import com.pp.media.adapter.MultiltemAdapter;
 import com.pp.media.callback.OnBeanListChangedCallBack;
 import com.pp.media.callback.OnBeanListChangedCallBack.Adapter;
-import com.pp.media.callback.OnListHoldCallbackListener;
-import com.pp.media.callback.RecycleCallbackHolder;
+import com.pp.media.lifecycle.LifecycleObjectHolder;
+import com.pp.media.lifecycle.OnListCallbackHolderListener;
 import com.pp.media.media.ImageBucket;
 import com.pp.media.repository.MediaRepository;
-import com.pp.media.ui.event.MediaEvent;
+import com.pp.media.ui.media.event.MediaEvent;
 import com.pp.media.ui.media.model.ImageBucketItemViewModel;
 import com.pp.mvvm.base.LifecycleViewModel;
 
@@ -41,11 +41,11 @@ public class ImageBucketViewModel extends LifecycleViewModel {
     public void onCreate(@NonNull LifecycleOwner owner) {
     }
 
-    private final RecycleCallbackHolder<ObservableList.OnListChangedCallback<ObservableList<ImageBucketItemViewModel>>>
-            mCallbackHolder = new RecycleCallbackHolder<>(new OnListHoldCallbackListener<>(mItemList));
+    LifecycleObjectHolder<ObservableList.OnListChangedCallback<ObservableList<ImageBucketItemViewModel>>> callbackHolder = new LifecycleObjectHolder<>();
+
 
     public void addOnItemChangedCallback(LifecycleOwner owner, ObservableList.OnListChangedCallback<ObservableList<ImageBucketItemViewModel>> callback) {
-        mCallbackHolder.holdCallback(owner, callback);
+        callbackHolder.holde(owner, callback, new OnListCallbackHolderListener<>(mItemList));
     }
 
     public void addOnImageBucketChangedCallback(@NonNull MediaRepository repository, LifecycleOwner owner) {

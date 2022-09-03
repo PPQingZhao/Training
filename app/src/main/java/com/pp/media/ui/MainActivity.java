@@ -8,6 +8,7 @@ import com.pp.media.R;
 import com.pp.media.base.BaseActivity;
 import com.pp.media.databinding.MainDataBing;
 import com.pp.media.ui.home.MainFragment;
+import com.pp.media.ui.media.ImageListFragment;
 import com.pp.media.util.FragmentUtil;
 
 
